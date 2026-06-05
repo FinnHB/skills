@@ -1,0 +1,290 @@
+# Curated journal profiles for /match-journal.
+#
+# Each scope_summary describes the journal's stated aims & scope. The `verification`
+# field records provenance, highest trust first:
+#   fetched:<date>        — paraphrased from a live fetch of the publisher's own aims_scope_url
+#   web-research:<date>   — corroborated via web search of the journal's aims & scope from
+#                           the publisher's page and reliable secondary sources, because the
+#                           publisher bot-blocked a direct build-time fetch of aims_scope_url.
+#                           Grounded but not pulled from the publisher page itself.
+#   from-model-knowledge  — written from general knowledge only; not corroborated. (none at present)
+#
+# No acceptance rates, accept probabilities, or review-time estimates appear here — by
+# design (see docs/adr/0012-journal-fit-not-acceptance-prediction.md). Coverage is the
+# top general-interest journals plus the macro / international / monetary field journals
+# relevant to this harness's focus. It is intentionally not exhaustive.
+schema_version: "1.0.0"
+built: 2026-05-31
+
+journals:
+  # ── Top general-interest ────────────────────────────────────────────────────
+  - key: AER
+    name: "American Economic Review"
+    publisher: "American Economic Association"
+    type: general-interest
+    tier: top-5
+    fields: [all]
+    methods: [theoretical, empirical, structural]
+    aims_scope_url: "https://www.aeaweb.org/journals/aer/about-aer"
+    scope_summary: >-
+      A general-interest economics journal (established 1911) publishing leading
+      research of significance across all fields of economics. No field or method
+      preference; the bar is broad importance to the discipline.
+    verification: "fetched:2026-05-31"
+    notes: "Short-paper sibling: AER: Insights (AER-Insights)."
+
+  - key: AER-Insights
+    name: "American Economic Review: Insights"
+    publisher: "American Economic Association"
+    type: general-interest
+    tier: top-general
+    fields: [all]
+    methods: [theoretical, empirical, structural]
+    aims_scope_url: "https://www.aeaweb.org/journals/aeri/about-aeri"
+    scope_summary: >-
+      A general-interest journal publishing papers of the same quality as the AER but
+      devoted to results that can be conveyed succinctly. Suited to a single, sharp,
+      important insight rather than a long multi-result paper.
+    verification: "fetched:2026-05-31"
+    typical_length: "Short-format papers."
+
+  - key: QJE
+    name: "The Quarterly Journal of Economics"
+    publisher: "Oxford University Press (Harvard)"
+    type: general-interest
+    tier: top-5
+    fields: [all, macro, development, labor, empirical-micro]
+    methods: [empirical, theoretical, structural]
+    aims_scope_url: "https://academic.oup.com/qje/pages/About"
+    scope_summary: >-
+      The oldest professional economics journal in English, edited at Harvard; general-interest,
+      covering all aspects of the field from its traditional micro-theory emphasis to both
+      empirical and theoretical macroeconomics. Especially influential in macro, development,
+      and empirical microeconomics.
+    verification: "web-research:2026-05-31"
+
+  - key: JPE
+    name: "Journal of Political Economy"
+    publisher: "University of Chicago Press"
+    type: general-interest
+    tier: top-5
+    fields: [all, macro, price-theory, applied-micro]
+    methods: [theoretical, empirical, structural]
+    aims_scope_url: "https://www.journals.uchicago.edu/journals/jpe/about"
+    scope_summary: >-
+      A highly selective general-interest journal (since 1892) publishing widely cited
+      analytical, interpretive, and empirical studies with long-term impact, spanning
+      monetary theory, fiscal policy, labor, development, micro- and macroeconomic theory,
+      international trade and finance, industrial organization, and social economics.
+    verification: "web-research:2026-05-31"
+
+  - key: Econometrica
+    name: "Econometrica"
+    publisher: "The Econometric Society (Wiley)"
+    type: general-interest
+    tier: top-5
+    fields: [all, theory, econometric-methods, macro, quantitative]
+    methods: [theoretical, structural, econometric-methodology]
+    aims_scope_url: "https://www.econometricsociety.org/publications/econometrica/aims-and-scope"
+    scope_summary: >-
+      Promotes work aimed at unifying the theoretical-quantitative and empirical-quantitative
+      approaches to economics, penetrated by rigorous, constructive thinking. Publishes
+      original articles in all branches — theoretical and empirical, abstract and applied —
+      and is strongest for frontier economic theory, econometric methodology, and
+      quantitative/structural macro. A heavily formal, technical outlet.
+    verification: "web-research:2026-05-31"
+
+  - key: ReStud
+    name: "The Review of Economic Studies"
+    publisher: "Oxford University Press"
+    type: general-interest
+    tier: top-5
+    fields: [all, theory, macro, applied-micro]
+    methods: [theoretical, empirical, structural]
+    aims_scope_url: "https://academic.oup.com/restud/pages/About"
+    scope_summary: >-
+      A core top-five general-interest journal that encourages research in theoretical and
+      applied economics — with a long tradition of supporting younger economists — and has
+      a reputation for path-breaking papers. Strong in economic theory, macroeconomics, and
+      applied microeconomics.
+    verification: "web-research:2026-05-31"
+
+  - key: ReStat
+    name: "The Review of Economics and Statistics"
+    publisher: "MIT Press"
+    type: general-interest
+    tier: top-general
+    fields: [all, applied, empirical-macro, empirical-micro]
+    methods: [empirical, structural]
+    aims_scope_url: "https://direct.mit.edu/rest/pages/about"
+    scope_summary: >-
+      Publishes both empirical and theoretical contributions of interest to a wide economics
+      readership, with an emphasis on rigorous applied and empirical research employing
+      diverse methodologies. A natural home for careful data-driven and econometric work
+      rather than pure theory.
+    verification: "web-research:2026-05-31"
+
+  - key: JEEA
+    name: "Journal of the European Economic Association"
+    publisher: "Oxford University Press (EEA)"
+    type: general-interest
+    tier: top-general
+    fields: [all]
+    methods: [theoretical, empirical, structural]
+    aims_scope_url: "https://academic.oup.com/jeea/pages/About"
+    scope_summary: >-
+      The official journal of the European Economic Association; a general-interest outlet
+      for the highest-quality theoretical and empirical work with global relevance.
+      Macroeconomics, political economy, institutions, behavioral economics, and structural
+      econometrics are core areas, alongside international, financial, and labor economics.
+    verification: "web-research:2026-05-31"
+
+  - key: EJ
+    name: "The Economic Journal"
+    publisher: "Oxford University Press (Royal Economic Society)"
+    type: general-interest
+    tier: top-general
+    fields: [all, policy]
+    methods: [theoretical, empirical, structural]
+    aims_scope_url: "https://academic.oup.com/ej/pages/About"
+    scope_summary: >-
+      The Royal Economic Society's flagship general journal, publishing theoretical, applied,
+      and empirical papers across the entire field of economics for a broad international
+      readership, including policy-relevant work. Accessible to economists across academia,
+      government, and the financial sector.
+    verification: "web-research:2026-05-31"
+
+  # ── Field: macro / international / monetary ──────────────────────────────────
+  - key: AEJ-Macro
+    name: "American Economic Journal: Macroeconomics"
+    publisher: "American Economic Association"
+    type: field
+    tier: top-field
+    fields: [macro, growth, monetary, business-cycles, international]
+    methods: [theoretical, structural, empirical]
+    aims_scope_url: "https://www.aeaweb.org/journals/mac/about-mac"
+    scope_summary: >-
+      Focuses on studies of aggregate fluctuations and growth and the role of policy in
+      that context. Such studies often borrow from and interact with monetary theory,
+      international economics, finance, labor, and other fields. A leading field home for
+      quantitative macro.
+    verification: "fetched:2026-05-31"
+
+  - key: JME
+    name: "Journal of Monetary Economics"
+    publisher: "Elsevier"
+    type: field
+    tier: top-field
+    fields: [monetary, macro, business-cycles, monetary-policy]
+    methods: [theoretical, structural, empirical]
+    aims_scope_url: "https://www.sciencedirect.com/journal/journal-of-monetary-economics/about/aims-and-scope"
+    scope_summary: >-
+      Publishes important empirical, methodological, and theoretical contributions across
+      modern macroeconomics — monetary theory and policy, business cycles, asset pricing,
+      banking and credit, growth, and open-economy macro (exchange rates). Hosts the
+      Carnegie-Rochester conference series. Strong fit for DSGE/quantitative monetary macro.
+    verification: "web-research:2026-05-31"
+
+  - key: JIE
+    name: "Journal of International Economics"
+    publisher: "Elsevier"
+    type: field
+    tier: top-field
+    fields: [international, trade, open-economy-macro, international-finance]
+    methods: [theoretical, structural, empirical]
+    aims_scope_url: "https://www.sciencedirect.com/journal/journal-of-international-economics/about/aims-and-scope"
+    scope_summary: >-
+      The primary outlet for theoretical and empirical research in all areas of
+      international economics: trade and commercial policy, exchange rates, open-economy
+      macroeconomics, international finance, sovereign debt, and international factor
+      mobility. Especially encourages empirical work and open-economy-macro/international-finance
+      papers — a premier field home for capital-flows work.
+    verification: "web-research:2026-05-31"
+
+  - key: JIMF
+    name: "Journal of International Money and Finance"
+    publisher: "Elsevier"
+    type: field
+    tier: strong-field
+    fields: [international-finance, open-economy-macro, exchange-rates, capital-flows, monetary]
+    methods: [theoretical, empirical, structural]
+    aims_scope_url: "https://www.sciencedirect.com/journal/journal-of-international-money-and-finance/about/aims-and-scope"
+    scope_summary: >-
+      Devoted to theoretical and empirical research in international monetary economics,
+      international finance, and the overlap between them: exchange-rate behaviour,
+      international capital markets, international monetary and fiscal policy, open-economy
+      macroeconomics, optimum currency areas, and international asset pricing.
+    verification: "web-research:2026-05-31"
+
+  - key: RED
+    name: "Review of Economic Dynamics"
+    publisher: "Elsevier (Society for Economic Dynamics)"
+    type: field
+    tier: top-field
+    fields: [macro, dynamics, growth, business-cycles, quantitative]
+    methods: [theoretical, structural, computational]
+    aims_scope_url: "https://www.sciencedirect.com/journal/review-of-economic-dynamics/about/aims-and-scope"
+    scope_summary: >-
+      The journal of the Society for Economic Dynamics; publishes meritorious original
+      contributions to dynamic economics in any area meeting the highest scientific
+      standards — macroeconomics, growth, business cycles, and quantitative/computational
+      dynamic models. Strong fit for heterogeneous-agent and quantitative dynamic models.
+    verification: "web-research:2026-05-31"
+
+  - key: IMF-ER
+    name: "IMF Economic Review"
+    publisher: "Springer / Palgrave Macmillan (IMF)"
+    type: field
+    tier: strong-field
+    fields: [open-economy-macro, international-finance, capital-flows, policy]
+    methods: [empirical, theoretical, structural]
+    aims_scope_url: "https://link.springer.com/journal/41308/aims-and-scope"
+    scope_summary: >-
+      The official research journal of the IMF; publishes peer-reviewed, high-quality,
+      context-related research on open-economy macroeconomics, emphasizing rigorous analysis
+      with an empirical orientation relevant to international policy. Strong fit for
+      capital-flows and international-finance papers with policy bearing.
+    verification: "fetched:2026-05-31"
+
+  - key: JMCB
+    name: "Journal of Money, Credit and Banking"
+    publisher: "Wiley (Ohio State University)"
+    type: field
+    tier: strong-field
+    fields: [monetary, banking, credit, monetary-policy, macro-finance]
+    methods: [theoretical, empirical, structural]
+    aims_scope_url: "https://onlinelibrary.wiley.com/journal/15384616"
+    scope_summary: >-
+      Read by scholars and policymakers in money and banking, credit markets, regulation of
+      financial institutions, international payments, portfolio management, and monetary and
+      fiscal policy. Receptive to both theory and empirical monetary/macro-finance work.
+    verification: "web-research:2026-05-31"
+
+  - key: JEDC
+    name: "Journal of Economic Dynamics and Control"
+    publisher: "Elsevier"
+    type: field
+    tier: strong-field
+    fields: [computational, dynamics, macro, quantitative-methods]
+    methods: [theoretical, computational, structural]
+    aims_scope_url: "https://www.sciencedirect.com/journal/journal-of-economic-dynamics-and-control/about/aims-and-scope"
+    scope_summary: >-
+      An outlet for research on all theoretical and empirical aspects of economic dynamics
+      and control and the development and use of computational methods in economics and
+      finance (numerical optimization, algorithms for control and equilibria). Best fit
+      when the central contribution is methodological — solution methods or dynamic technique.
+    verification: "web-research:2026-05-31"
+
+  - key: AEJ-Policy
+    name: "American Economic Journal: Economic Policy"
+    publisher: "American Economic Association"
+    type: field
+    tier: top-field
+    fields: [policy, public, urban-regional, applied]
+    methods: [empirical, structural, theoretical]
+    aims_scope_url: "https://www.aeaweb.org/journals/pol/about-pol"
+    scope_summary: >-
+      Covers a range of topics whose common theme is the role of economic policy in economic
+      outcomes, including public economics and urban/regional economics. Best fit when the
+      central contribution is a policy evaluation or policy-relevant empirical finding.
+    verification: "fetched:2026-05-31"

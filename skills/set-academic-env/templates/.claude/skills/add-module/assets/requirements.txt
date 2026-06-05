@@ -1,0 +1,10 @@
+# Module analysis dependencies (Python).
+# Seed with your direct deps, then pin with:
+#   uv pip compile requirements.txt -o requirements.txt
+# Or install directly:
+#   uv pip install -r requirements.txt
+#
+# Example deps (remove/replace as needed):
+# numpy>=1.26
+# pandas>=2.0
+# matplotlib>=3.7

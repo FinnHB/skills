@@ -1,0 +1,25 @@
+{
+  "permissions": {
+    "defaultMode": "autoEdit"
+  },
+  "hooks": {
+    "PreToolUse": [
+      {"matcher": ".*", "hooks": [{"type": "command", "command": "\"$CLAUDE_PROJECT_DIR/.claude/hooks/pretooluse-heavy-task-approval.sh\""}]},
+      {"matcher": ".*", "hooks": [{"type": "command", "command": "\"$CLAUDE_PROJECT_DIR/.claude/hooks/pretooluse-data-classification-wall.sh\""}]},
+      {"matcher": "Edit|Write", "hooks": [{"type": "command", "command": "\"$CLAUDE_PROJECT_DIR/.claude/hooks/pretooluse-theory-priors-fence.sh\""}]},
+      {"matcher": "Edit|Write", "hooks": [{"type": "command", "command": "\"$CLAUDE_PROJECT_DIR/.claude/hooks/pretooluse-theory-priors-state-machine.sh\""}]},
+      {"matcher": "Edit|Write", "hooks": [{"type": "command", "command": "\"$CLAUDE_PROJECT_DIR/.claude/hooks/pretooluse-theory-priors-decision-log-append.sh\""}]}
+    ],
+    "PostToolUse": [
+      {"matcher": "Edit|Write", "hooks": [{"type": "command", "command": "\"$CLAUDE_PROJECT_DIR/.claude/hooks/posttooluse-latexdiff-snapshot.sh\""}]},
+      {"matcher": "Edit|Write", "hooks": [{"type": "command", "command": "\"$CLAUDE_PROJECT_DIR/.claude/hooks/posttooluse-lint-tex.sh\""}]},
+      {"matcher": "Edit|Write", "hooks": [{"type": "command", "command": "\"$CLAUDE_PROJECT_DIR/.claude/hooks/posttooluse-layout-lint.sh\""}]}
+    ],
+    "Stop": [
+      {"hooks": [{"type": "command", "command": "\"$CLAUDE_PROJECT_DIR/.claude/hooks/stop-integrity-gate-report.sh\""}]},
+      {"hooks": [{"type": "command", "command": "\"$CLAUDE_PROJECT_DIR/.claude/hooks/stop-ai-tell-scan.sh\""}]},
+      {"hooks": [{"type": "command", "command": "\"$CLAUDE_PROJECT_DIR/.claude/hooks/stop-changelog-append.sh\""}]},
+      {"hooks": [{"type": "command", "command": "\"$CLAUDE_PROJECT_DIR/.claude/hooks/stop-operations-log.sh\""}]}
+    ]
+  }
+}

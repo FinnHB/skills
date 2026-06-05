@@ -1,0 +1,54 @@
+paper:
+  name: "{{PAPER_SLUG}}"
+  slug: "{{PAPER_SLUG}}"
+  canonical_source: "paper/main.tex"
+  full_draft_context: "source/FullDraftPaper.pdf"   # TODO: confirm or change
+
+# ── Paths ─────────────────────────────────────────────────────────────────────
+# Single source of truth for where things live in this repo. Skills and hooks
+# resolve these instead of assuming files at the repo root. Pre-filled with the
+# default light layout — edit if this project uses a different structure.
+paths:
+  manuscript:  "paper/main.tex"        # canonical LaTeX source (ADR 0001)
+  references:  "paper/references.bib"   # BibTeX, synced from Zotero by /sync-zotero
+  workspace:   "worklog"                # planning docs + research/ + review/ + transcripts/
+  figures_dir: "paper/figures"          # manuscript figures (created when first needed)
+  data_dir:    "data"                   # data root (created by convention when needed)
+  code_dir:    "code"                   # analysis code (created when needed)
+
+harness:
+  version: "{{HARNESS_SHA}}"
+  installed_at: "{{TODAY}}"
+
+zotero:
+  collection_key: "TODO"           # paste from Zotero — see SETUP.md
+  collection_name: "{{PAPER_SLUG}}"
+  citekey_style: "betterbibtex-author-year-shorttitle"
+  write_path: "web_api"            # web_api | local — see ADR 0010
+  embedding_model: "all-MiniLM-L6-v2"
+  translation_server_url: "http://localhost:1969"
+  grobid_url: "http://localhost:8070"
+
+skills:
+  sympy_version: "effb57c5699c1d400ef461a7aa80fc6693939805"
+
+integrity_gate:
+  enabled: true                  # set to false only to temporarily disable; not for MVP
+  auto_loop_max_retries: 2       # ADR 0002 — heavy-mode layer-1 only
+
+data:
+  classification: "public"         # public | restricted | confidential
+                                   # MVP supports public only; restricted/confidential
+                                   # require the MVP+1 DATA_CLASSIFICATION wall
+
+verification:
+  symbolic_default: false
+  numerical_enabled: false
+
+# ── Manuscript variants ───────────────────────────────────────────────────────
+# The paper can have a few variants (e.g. theory-only vs theory+empirics, or a
+# journal-tailored cut), all sharing paper/sections/*.tex. paths.manuscript above
+# is the ACTIVE/default variant; this is the catalog. /add-variant appends here.
+manuscripts:
+  variants:
+    base: { file: "paper/main.tex", journal: ~ }   # the default; matches paths.manuscript

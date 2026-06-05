@@ -1,0 +1,50 @@
+# ── OS / editor junk ─────────────────────────────────────────
+.DS_Store
+._*
+.Spotlight-V100
+.Trashes
+Thumbs.db
+*.swp
+*~
+.idea/
+.vscode/
+
+# ── Secrets — defense in depth; never commit ─────────────────
+.env
+.env.*
+!.env.template
+*.key
+*.pem
+*.p12
+*.pfx
+secrets.*
+
+# ── Python ───────────────────────────────────────────────────
+.venv/
+__pycache__/
+*.pyc
+.ipynb_checkpoints/
+
+# ── Logs (rotated / large) ───────────────────────────────────
+logs/operations.jsonl
+logs/hooks.log
+
+# ── LaTeX build artifacts ────────────────────────────────────
+*.aux
+*.bbl
+*.bcf
+*.blg
+*.fdb_latexmk
+*.fls
+*.lof
+*.log
+*.lot
+*.out
+*.run.xml
+*.synctex.gz
+*.toc
+*.nav
+*.snm
+*.vrb
+# Compiled manuscript PDF (regenerable). Source PDFs under source/ stay tracked.
+paper/main.pdf

@@ -1,0 +1,32 @@
+#!/usr/bin/env bash
+# Secret-scan pre-commit hook for AcademicPaperWriter paper repos.
+# Activated via: git config core.hooksPath .githooks
+# Blocks commits that stage env files or key-shaped secrets.
+# Bypass intentionally with: git commit --no-verify
+set -euo pipefail
+
+# 1) Block staged real .env files (allow .env.template).
+blocked=$(git diff --cached --name-only | grep -E '(^|/)\.env($|\.)' | grep -v '\.env\.template' || true)
+if [ -n "$blocked" ]; then
+  echo "pre-commit BLOCKED: refusing to commit env file(s):" >&2
+  echo "$blocked" | sed 's/^/  - /' >&2
+  echo "Remove from the index (git rm --cached <file>) or rename to .env.template." >&2
+  exit 1
+fi
+
+# 2) Scan staged additions for secrets.
+if command -v gitleaks >/dev/null 2>&1; then
+  gitleaks protect --staged --redact --no-banner || {
+    echo "pre-commit BLOCKED: gitleaks detected a secret in staged changes." >&2
+    exit 1
+  }
+else
+  added=$(git diff --cached -U0 | grep -E '^\+' | grep -Ev '^\+\+\+' || true)
+  if printf '%s\n' "$added" | grep -qE '(sk-[A-Za-z0-9]{16,}|(CUSTOM_API_KEY|ZOTERO_API_KEY|ANTHROPIC_API_KEY|API_KEY|SECRET)[[:space:]]*[:=][[:space:]]*["'"'"']?[A-Za-z0-9_-]{16,}|AKIA[0-9A-Z]{16}|-----BEGIN [A-Z ]*PRIVATE KEY-----)'; then
+    echo "pre-commit BLOCKED: a staged line looks like a secret (api key / private key)." >&2
+    echo "If this is a false positive, scrub the value or commit with: git commit --no-verify" >&2
+    exit 1
+  fi
+fi
+
+exit 0

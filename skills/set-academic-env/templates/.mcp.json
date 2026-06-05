@@ -1,0 +1,27 @@
+{
+  "mcpServers": {
+    "pal": {
+      "command": "sh",
+      "args": [
+        "-c",
+        "for p in $(which uvx 2>/dev/null) $HOME/.local/bin/uvx /opt/homebrew/bin/uvx /usr/local/bin/uvx uvx; do [ -x \"$p\" ] && exec \"$p\" --from git+https://github.com/BeehiveInnovations/pal-mcp-server.git pal-mcp-server; done; echo 'uvx not found' >&2; exit 1"
+      ],
+      "env": {
+        "PATH": "/usr/local/bin:/usr/bin:/bin:/opt/homebrew/bin:~/.local/bin",
+        "CUSTOM_API_URL": "${CUSTOM_API_URL}",
+        "CUSTOM_API_KEY": "${CUSTOM_API_KEY}",
+        "CUSTOM_MODEL_NAME": "${CUSTOM_MODEL_NAME}"
+      }
+    },
+    "zotero": {
+      "command": "zotero-mcp",
+      "env": {
+        "ZOTERO_LOCAL": "true",
+        "ZOTERO_API_KEY": "${ZOTERO_API_KEY}",
+        "ZOTERO_LIBRARY_ID": "${ZOTERO_LIBRARY_ID}",
+        "ZOTERO_LIBRARY_TYPE": "${ZOTERO_LIBRARY_TYPE}",
+        "ZOTERO_EMBEDDING_MODEL": "all-MiniLM-L6-v2"
+      }
+    }
+  }
+}

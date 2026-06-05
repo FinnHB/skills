@@ -1,0 +1,65 @@
+# Stub — full list from github.com/berenslab/llm-excess-vocab; update before Phase 10 real-usage validation
+# Source: Kobak et al., Science Advances 2025 — 900 words with frequency ratios (delve r=28.0, underscores r=13.8, etc.)
+# Current stub: ~60 high-frequency AI-tell words, alphabetical
+# Co-occurrence patterns (e.g., "delve into the intricate") are MVP+1 — see Research/06 §B.2
+absolutely
+actionable
+actually
+additionally
+aligned
+arguably
+certainly
+comprehensive
+consequently
+crucial
+cutting-edge
+delve
+dynamic
+effectively
+elevate
+empower
+enhance
+ensure
+entirely
+essentially
+facilitate
+foster
+furthermore
+groundbreaking
+holistic
+impactful
+in conclusion
+innovative
+insightful
+intricate
+landscape
+leverage
+meticulous
+multifaceted
+navigate
+notably
+nuanced
+optimize
+paramount
+pivotal
+proactively
+profound
+rapidly
+realm
+revolutionary
+robust
+seamless
+significant
+straightforward
+streamline
+synergy
+tapestry
+transformative
+ultimately
+underpins
+unprecedented
+utilize
+valuable
+vibrant
+vital
+worth noting
