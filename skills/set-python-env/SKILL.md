@@ -1,3 +1,10 @@
+---
+name: set-python-env
+description: Set up a Python project environment (venv, folders, .gitignore, requirements.txt, README) and load Python coding principles for the session. Use when starting a new Python project or when the user wants the session to follow their Python conventions.
+metadata:
+  version: "1.0.0"
+---
+
 Set up a Python project environment and load coding principles for this session.
 
 ## Phase 1 — Environment Setup
