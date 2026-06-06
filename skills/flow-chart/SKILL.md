@@ -3,7 +3,7 @@ name: flow-chart
 description: Create audience-appropriate HTML flowcharts and process diagrams with hover tooltips and click-to-expand details. Use when users ask for a flowchart, process diagram, workflow visualization, decision tree, or a visual of how a script/system/process works. Produces purpose-level diagrams a newcomer can read in 30 seconds — not code transcriptions.
 allowed-tools: Bash, Read, Write, Edit
 metadata:
-  version: "0.6.0"
+  version: "0.6.1"
 ---
 
 # Flow Chart
@@ -46,7 +46,7 @@ Mermaid pitfalls:
 - Ids match `[A-Z][A-Za-z0-9]*` (`P1`, `D2`) — no hyphens or underscores (the keyboard handler parses DOM ids); `end` is reserved.
 - `DETAILS` bodies are JS template literals: never put backticks or `${` inside them — use `<code>` tags and HTML entities.
 - Swimlanes: `subgraph SG1["Lane name"] ... end` (quoted title); node ids stay global; lane-internal edges still count toward linkStyle indices.
-- Direction only — `flowchart TD` by default, `LR` only for near-linear flows (≤1 diamond); never hand-place coordinates.
+- Always `flowchart TD` (vertical scrolls; horizontal shrinks — the SVG scales to fit the card width, so LR charts render with tiny text). Use `LR` only if the user explicitly asks for horizontal. Never hand-place coordinates.
 
 ## 6. Check, then ship
 

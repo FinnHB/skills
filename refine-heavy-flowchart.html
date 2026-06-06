@@ -1,4 +1,22 @@
 <!DOCTYPE html>
+<!-- flow-chart skill template — "engineering paper" design system.
+     Fill ONLY these slots; everything else stays byte-identical:
+       1. <title>
+       2. kicker project name (the .name span)
+       3. h1 + subtitle
+       4. accTitle / accDescr
+       5. the mermaid graph — then rewrite the %% edge index map comment
+          (own line only — trailing comments are a parse error)
+       6. linkStyle indices — 0-based over ALL edges in declaration order,
+          read from the edge index map; DELETE the red linkStyle line if
+          the chart has no error edges
+       7. click bindings — one per process/decision/success node (never
+          start/stop)
+       8. DETAILS map — same case-sensitive keys as the click bindings;
+          bodies are JS template literals: no backticks or ${ inside
+       9. legend — delete chips for node classes the chart doesn't use
+     CDN note: mermaid + fonts need internet at view time; fonts degrade to
+     the system stack offline. -->
 <html lang="en">
 <head>
 <meta charset="utf-8">
@@ -68,7 +86,8 @@
   .appendix { display: none; }
   @media print {
     .appendix { display: block; margin-top: 24px; }
-    .appendix h2 { font-family: "Fraunces", Georgia, serif; font-size: 16px; margin: 16px 0 6px; }
+    .appendix h2 { font-family: "Fraunces", Georgia, serif; font-size: 18px; margin: 0 0 8px; }
+    .appendix h3 { font-family: "Fraunces", Georgia, serif; font-size: 15px; margin: 16px 0 6px; }
     .appendix p, .appendix li { font-size: 12px; color: var(--ink-soft); }
     #detail { display: none; }
     .card { break-inside: avoid; box-shadow: none; }
@@ -114,6 +133,8 @@ flowchart TD
   classDef decision fill:#fff4e6,stroke:#e8930c,stroke-width:1.5px,color:#7d4f0a
 
   linkStyle default stroke:#8d8a82,stroke-width:2px
+  %% edge index map: 0 S->P1, 1 P1->P2, 2 P2->D1, 3 D1->E0 (error), 4 D1->P3, 5 P3->P4, 6 P4->D2, 7 D2->E1 (error), 8 D2->P5, 9 P5->Z
+  %% DELETE the red linkStyle line below if the chart has no error edges
   linkStyle 3,7 stroke:#c92a2a,stroke-width:1.5px,stroke-dasharray:4 3
 
   click P1 call nodeDetail() "Silently reads the paper's rules, constraints, config, and research notes, then confirms which section it is about to work on."
@@ -160,7 +181,7 @@ const DETAILS = {
     <ul>
       <li><b>Approve</b> — proceed as proposed.</li>
       <li><b>Amend</b> — describe changes; the updated direction is re-confirmed first.</li>
-      <li><b>Cancel</b> — exit with the manuscript untouched.</li>
+      <li><b>Cancel</b> — exit with the manuscript untouched (the "Stop: nothing changed" exit).</li>
     </ul>` },
   P3: { title: "Rewrite the section", body: `
     <ul>
@@ -216,7 +237,7 @@ window.nodeDetail = (id, scroll = true) => {
 
 mermaid.initialize({
   startOnLoad: false,
-  securityLevel: "loose",
+  securityLevel: "loose",          // required for click callbacks
   theme: "base",
   themeVariables: { fontFamily: "'IBM Plex Sans', system-ui, sans-serif", fontSize: "14px",
                     lineColor: "#8d8a82", edgeLabelBackground: "#fffefb" },
@@ -225,19 +246,26 @@ mermaid.initialize({
 await mermaid.run();
 
 // Keyboard access: clickable nodes are tabbable buttons.
+// DOM ids are "flowchart-<nodeId>-<counter>" (mermaid 11.x internal — why the version is pinned).
+const domToNodeId = el => el.id.replace(/^flowchart-/, "").replace(/-\d+$/, "");
 document.querySelectorAll(".mermaid .node.clickable").forEach(n => {
   n.setAttribute("tabindex", "0");
   n.setAttribute("role", "button");
   n.addEventListener("keydown", e => {
-    if (e.key === "Enter" || e.key === " ") { e.preventDefault(); nodeDetail(n.id.split("-")[1]); }
+    if (e.key === "Enter" || e.key === " ") { e.preventDefault(); nodeDetail(domToNodeId(n)); }
   });
 });
+
+// Integrity check: every clickable node needs a DETAILS entry and vice versa.
+const clickIds = [...document.querySelectorAll(".mermaid .node.clickable")].map(domToNodeId);
+for (const id of clickIds) if (!DETAILS[id]) console.error(`flow-chart: click binding "${id}" has no DETAILS entry`);
+for (const id of Object.keys(DETAILS)) if (!clickIds.includes(id)) console.error(`flow-chart: DETAILS entry "${id}" has no click binding`);
 
 // Print appendix: full details in document order.
 const app = document.createElement("section");
 app.className = "appendix";
-app.innerHTML = "<h1>Stage details</h1>" +
-  Object.values(DETAILS).map(d => `<h2>${d.title}</h2>${d.body}`).join("");
+app.innerHTML = "<h2>Stage details</h2>" +
+  Object.values(DETAILS).map(d => `<h3>${d.title}</h3>${d.body}`).join("");
 document.body.append(app);
 
 // Demonstrate the interaction: first stage pre-selected (no scroll on load).

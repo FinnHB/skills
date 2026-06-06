@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<!-- flow-chart skill template — "engineering paper" design system.
+     Fill ONLY these slots; everything else stays byte-identical:
+       1. <title>
+       2. kicker project name (the .name span)
+       3. h1 + subtitle
+       4. accTitle / accDescr
+       5. the mermaid graph — then rewrite the %% edge index map comment
+          (own line only — trailing comments are a parse error)
+       6. linkStyle indices — 0-based over ALL edges in declaration order,
+          read from the edge index map; DELETE the red linkStyle line if
+          the chart has no error edges
+       7. click bindings — one per process/decision/success node (never
+          start/stop)
+       8. DETAILS map — same case-sensitive keys as the click bindings;
+          bodies are JS template literals: no backticks or ${ inside
+       9. legend — delete chips for node classes the chart doesn't use
+     CDN note: mermaid + fonts need internet at view time; fonts degrade to
+     the system stack offline. -->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Processing one podcast episode · Process map</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --paper:#f7f6f3; --card:#fffefb; --border:#e7e4dd; --ink:#1c1d20;
+    --ink-soft:#3a3d42; --muted:#6b6f76; --accent:#3b5bdb;
+    --code-bg:#f1efe9; --code-border:#e3e0d6;
+    --ok:#2f9e44; --stop:#c92a2a; --process:#3b5bdb; --decision:#e8930c;
+  }
+  body {
+    font-family: "IBM Plex Sans", system-ui, sans-serif;
+    background-color: var(--paper);
+    background-image: radial-gradient(circle, rgba(28,29,32,.06) .8px, transparent 1.6px);
+    background-size: 16px 16px;
+    color: var(--ink); line-height: 1.55;
+    margin: 0; padding: 40px clamp(20px, 4vw, 56px);
+  }
+  .kicker { font-size: 12px; font-weight: 600; letter-spacing: .14em;
+            text-transform: uppercase; color: var(--muted); margin: 0 0 8px; }
+  .kicker .name { text-transform: none; font-family: "IBM Plex Mono", monospace;
+                  font-weight: 400; letter-spacing: .02em; }
+  h1 { font-family: "Fraunces", Georgia, serif; font-weight: 600;
+       font-size: clamp(26px, 3.2vw, 34px); line-height: 1.15;
+       text-wrap: balance; margin: 0 0 8px; letter-spacing: -.015em; }
+  .subtitle { color: var(--muted); margin: 0 0 24px; font-size: 15px;
+              line-height: 1.5; max-width: 70ch; }
+  .card { background: var(--card); border: 1px solid var(--border); border-radius: 10px;
+          padding: 24px; box-shadow: 0 1px 2px rgb(28 29 32 / .05), 0 2px 8px rgb(28 29 32 / .04); }
+  .layout { display: flex; gap: 24px; align-items: flex-start; flex-wrap: wrap; }
+  .chart { flex: 1 1 560px; overflow-x: auto; }
+  pre.mermaid { margin: 0; display: flex; justify-content: center; }
+  .legend { display: flex; gap: 16px; flex-wrap: wrap;
+            border-bottom: 1px solid var(--border);
+            margin: -8px -24px 20px; padding: 0 24px 14px; }
+  .chip { display: flex; align-items: center; gap: 7px; font-size: 12.5px; color: #5a5e66; }
+  .chip .dot { width: 9px; height: 9px; border-radius: 3px; }
+  #detail { flex: 0 1 330px; position: sticky; top: 40px; min-height: 180px; }
+  #detail h2 { font-family: "Fraunces", Georgia, serif; font-weight: 600;
+               font-size: 18px; margin: 0 0 10px; }
+  #detail p, #detail li { font-size: 14px; color: var(--ink-soft); line-height: 1.55; }
+  #detail ul, #detail ol { padding-left: 18px; }
+  #detail .placeholder { color: #9a9da3; }
+  code { font-family: "IBM Plex Mono", ui-monospace, monospace; font-size: .85em;
+         background: var(--code-bg); border: 1px solid var(--code-border);
+         border-radius: 4px; padding: .08em .35em; color: var(--ink); }
+  .mermaid .node { cursor: default; }
+  .mermaid .node.clickable { cursor: pointer; transition: filter .15s ease; }
+  .mermaid .node.clickable:hover { filter: brightness(.97) drop-shadow(0 2px 5px rgb(28 29 32 / .18)); }
+  .mermaid .node.selected rect,
+  .mermaid .node.selected polygon { stroke: var(--ink); stroke-width: 2.5px; }
+  .mermaid .node:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
+  .mermaid .nodeLabel { font-weight: 500; }
+  .mermaidTooltip { background: var(--ink) !important; color: #fff !important;
+                    border-radius: 6px !important; font-size: 12px !important;
+                    font-family: "IBM Plex Sans", sans-serif !important;
+                    padding: 7px 11px !important; max-width: 290px !important;
+                    line-height: 1.45; z-index: 10; pointer-events: none; }
+  @keyframes rise { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
+  header { animation: rise .35s ease-out both; }
+  .chart  { animation: rise .35s .08s ease-out both; }
+  #detail { animation: rise .35s .16s ease-out both; }
+  @media (prefers-reduced-motion: reduce) { header, .chart, #detail { animation: none; } }
+  .appendix { display: none; }
+  @media print {
+    .appendix { display: block; margin-top: 24px; }
+    .appendix h2 { font-family: "Fraunces", Georgia, serif; font-size: 18px; margin: 0 0 8px; }
+    .appendix h3 { font-family: "Fraunces", Georgia, serif; font-size: 15px; margin: 16px 0 6px; }
+    .appendix p, .appendix li { font-size: 12px; color: var(--ink-soft); }
+    #detail { display: none; }
+    .card { break-inside: avoid; box-shadow: none; }
+    body { background-image: none; }
+    header, .chart { animation: none; }
+  }
+</style>
+</head>
+<body>
+<header>
+  <p class="kicker">Process map · <span class="name">InGoodCompany</span></p>
+  <h1>Processing one podcast episode</h1>
+  <p class="subtitle">How each In Good Company episode travels from the RSS feed to a queryable question-and-answer dataset — hover a stage for a summary; click it for details.</p>
+</header>
+<div class="layout">
+  <div class="card chart">
+    <div class="legend">
+      <span class="chip"><span class="dot" style="background:#fffefb;border:1.5px solid var(--ink)"></span>Start</span>
+      <span class="chip"><span class="dot" style="background:var(--process)"></span>Stage</span>
+      <span class="chip"><span class="dot" style="background:var(--ok)"></span>Success</span>
+    </div>
+<pre class="mermaid">
+flowchart TD
+  accTitle: Processing one podcast episode
+  accDescr: Pipeline flowchart: fetch and download the episode, transcribe with speaker separation, identify host and guest, extract question-answer pairs, group answers into topics, episode becomes queryable.
+  S(["New episode in feed"]):::start --> P1("Fetch episode and download audio"):::process
+  P1 --> P2("Transcribe with speaker separation"):::process
+  P2 --> P3("Identify host and guest"):::process
+  P3 --> P4("Extract question-answer pairs"):::process
+  P4 --> P5("Group answers into topics"):::process
+  P5 --> Z(["Episode queryable"]):::success
+
+  classDef start    fill:#fffefb,stroke:#1c1d20,stroke-width:1.5px,color:#1c1d20
+  classDef success  fill:#ebfbee,stroke:#2f9e44,stroke-width:1.5px,color:#1e6b30
+  classDef stop     fill:#fff5f5,stroke:#c92a2a,stroke-width:1.5px,stroke-dasharray:5 3,color:#9b2424
+  classDef process  fill:#edf2ff,stroke:#3b5bdb,stroke-width:1.5px,color:#22338f
+  classDef decision fill:#fff4e6,stroke:#e8930c,stroke-width:1.5px,color:#7d4f0a
+
+  linkStyle default stroke:#8d8a82,stroke-width:2px
+  %% edge index map: 0 S->P1, 1 P1->P2, 2 P2->P3, 3 P3->P4, 4 P4->P5, 5 P5->Z (no error edges; red linkStyle line deleted)
+
+  click P1 call nodeDetail() "Reads the podcast feed, saves episode metadata, and downloads the audio file. Already-downloaded episodes are skipped."
+  click P2 call nodeDetail() "Speech-to-text with word-level timestamps, plus separating who is speaking. The slowest stage — checkpointed so failures never redo finished work."
+  click P3 call nodeDetail() "Turns anonymous speaker tracks into host and guest using three escalating tiers: jingle stripping, scoring heuristics, and an LLM fallback."
+  click P4 call nodeDetail() "Mechanically splits the labeled conversation into question-answer pairs using speaker turns and question detection — no LLM involved."
+  click P5 call nodeDetail() "An LLM reads the numbered question list, draws topic boundaries, and gives each group a descriptive label."
+  click Z call nodeDetail() "The episode's topics and question-answer pairs land in the project database, ready for analysis and querying."
+</pre>
+  </div>
+  <aside id="detail" class="card">
+    <h2 id="detail-title">Details</h2>
+    <div id="detail-body" aria-live="polite"><p class="placeholder">Click a stage in the chart to see what it carries.</p></div>
+  </aside>
+</div>
+
+<script type="module">
+import mermaid from "https://cdn.jsdelivr.net/npm/mermaid@11.4.1/dist/mermaid.esm.min.mjs";
+
+const DETAILS = {
+  P1: { title: "Fetch episode and download audio", body: `
+    <p>Stage 1 (<code>pipeline/1_harvest.py</code>):</p>
+    <ul>
+      <li>Parses the In Good Company RSS feed (Megaphone).</li>
+      <li>Saves metadata to <code>data/episodes.json</code> and SQLite; guest name is
+          inferred from the episode title.</li>
+      <li>Downloads audio to <code>data/audio/</code> (~50MB per hour of audio).</li>
+      <li>Resumable: episodes whose audio already exists are skipped.</li>
+    </ul>` },
+  P2: { title: "Transcribe with speaker separation", body: `
+    <p>Stage 2 (<code>pipeline/2_transcribe.py</code>), WhisperX + pyannote diarization:</p>
+    <ul>
+      <li>Model set by <code>WHISPER_MODEL</code> (default <code>large-v3</code>;
+          <code>medium</code>/<code>small</code> for smaller GPUs or CPU).</li>
+      <li>Needs a HuggingFace token and accepted pyannote model terms.</li>
+      <li>Checkpointed sub-steps — raw transcript, word-level alignment, speaker
+          labels — each saved to disk, so a failure never redoes earlier work.</li>
+      <li>Full ~100-episode run: ~8–12 h on Apple Silicon, ~4–6 h on an 8GB+ Nvidia GPU.</li>
+    </ul>` },
+  P3: { title: "Identify host and guest", body: `
+    <p>Stage 3 (<code>pipeline/3_label.py</code>), three-tier pipeline per ADR 0001:</p>
+    <ol>
+      <li><b>Jingle stripping</b> — discard speakers confined to the first 2 minutes.</li>
+      <li><b>Heuristic scoring</b> — segment length, question ratio, temporal spread
+          (the host, Nicolai Tangen, asks short frequent questions throughout).</li>
+      <li><b>LLM fallback</b> — Claude identifies the interviewer when confidence is low.</li>
+    </ol>
+    <p>Writes labeled transcripts to <code>data/labeled/</code>; resumable via the DB.</p>` },
+  P4: { title: "Extract question-answer pairs", body: `
+    <p>Stage 4a (<code>pipeline/4_structure.py</code>, ADR 0003):</p>
+    <ul>
+      <li>Mechanical parsing — speaker turn changes plus interrogative detection.</li>
+      <li>No LLM in this step: deterministic and cheap to re-run.</li>
+    </ul>` },
+  P5: { title: "Group answers into topics", body: `
+    <p>Stage 4b (<code>pipeline/4_structure.py</code>, ADR 0003):</p>
+    <ul>
+      <li>The numbered Q&amp;A list goes to Claude, which draws topic boundaries
+          and assigns descriptive "Emergent Labels".</li>
+      <li>Results written per episode to <code>data/structured/</code> and SQLite.</li>
+    </ul>` },
+  Z: { title: "Episode queryable", body: `
+    <p>The primary output is <code>data/ingoodcompany.db</code> (SQLite):
+    <code>episodes</code>, <code>topic_groups</code>, and <code>qa_pairs</code> tables,
+    enriched with guest metadata.</p>
+    <p>Designed for both NLP analysis and LLM-based querying; per-episode JSON also
+    lands in <code>data/structured/</code>.</p>` },
+};
+
+window.nodeDetail = (id, scroll = true) => {
+  const d = DETAILS[id];
+  if (!d) return;
+  document.querySelector(".mermaid .node.selected")?.classList.remove("selected");
+  document.querySelector(`.mermaid .node[id^="flowchart-${id}-"]`)?.classList.add("selected");
+  document.getElementById("detail-title").textContent = d.title;
+  document.getElementById("detail-body").innerHTML = d.body;
+  const panel = document.getElementById("detail");
+  if (scroll && panel.getBoundingClientRect().top > window.innerHeight * 0.8)
+    panel.scrollIntoView({ behavior: "smooth", block: "start" });
+};
+
+mermaid.initialize({
+  startOnLoad: false,
+  securityLevel: "loose",          // required for click callbacks
+  theme: "base",
+  themeVariables: { fontFamily: "'IBM Plex Sans', system-ui, sans-serif", fontSize: "14px",
+                    lineColor: "#8d8a82", edgeLabelBackground: "#fffefb" },
+  flowchart: { curve: "linear", padding: 14, nodeSpacing: 50, rankSpacing: 64 },
+});
+await mermaid.run();
+
+// Keyboard access: clickable nodes are tabbable buttons.
+// DOM ids are "flowchart-<nodeId>-<counter>" (mermaid 11.x internal — why the version is pinned).
+const domToNodeId = el => el.id.replace(/^flowchart-/, "").replace(/-\d+$/, "");
+document.querySelectorAll(".mermaid .node.clickable").forEach(n => {
+  n.setAttribute("tabindex", "0");
+  n.setAttribute("role", "button");
+  n.addEventListener("keydown", e => {
+    if (e.key === "Enter" || e.key === " ") { e.preventDefault(); nodeDetail(domToNodeId(n)); }
+  });
+});
+
+// Integrity check: every clickable node needs a DETAILS entry and vice versa.
+const clickIds = [...document.querySelectorAll(".mermaid .node.clickable")].map(domToNodeId);
+for (const id of clickIds) if (!DETAILS[id]) console.error(`flow-chart: click binding "${id}" has no DETAILS entry`);
+for (const id of Object.keys(DETAILS)) if (!clickIds.includes(id)) console.error(`flow-chart: DETAILS entry "${id}" has no click binding`);
+
+// Print appendix: full details in document order.
+const app = document.createElement("section");
+app.className = "appendix";
+app.innerHTML = "<h2>Stage details</h2>" +
+  Object.values(DETAILS).map(d => `<h3>${d.title}</h3>${d.body}`).join("");
+document.body.append(app);
+
+// Demonstrate the interaction: first stage pre-selected (no scroll on load).
+nodeDetail(Object.keys(DETAILS)[0], false);
+</script>
+</body>
+</html>

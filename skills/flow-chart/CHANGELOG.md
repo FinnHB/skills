@@ -1,5 +1,8 @@
 # Changelog — flow-chart
 
+## 2026-06-06 (v0.6.1)
+- LR layout rule reversed after real-world failure (InGoodCompany pipeline chart): Mermaid scales the SVG to fit the card width, so wide LR charts shrink all text to fit while TD charts just scroll. New rule: always `flowchart TD`; `LR` only on explicit user request. (The v0.6.0 "LR for near-linear flows" heuristic optimized for shape, not legibility.)
+
 ## 2026-06-06 (v0.6.0)
 - SKILL.md hardened after a three-agent critique (clarity/brevity editor, failure-mode red-team, skill-craftsmanship review). Corrections to outright bugs:
   - **linkStyle self-check rule was factually wrong** ("declaration order of the error edges" — indices count ALL edges). Empirically verified that an out-of-bounds index throws inside `mermaid.run()` and the top-level `await` kills keyboard wiring, print appendix, and initial selection. New discipline: own-line `%% edge index map:` comment, derive indices from it, delete the red line when no error edges exist (the template's stale sample line would otherwise paint a happy-path edge red).
