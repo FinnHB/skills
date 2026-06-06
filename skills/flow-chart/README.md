@@ -18,8 +18,8 @@ Create a decision tree for how we triage incoming bug reports.
 
 ## What you get
 
-- `<process>-flowchart.html` — self-contained page (Mermaid via pinned CDN), opened in your browser
-- 5–9 purpose-named stages, max 3 decision diamonds; happy path in one straight line
+- `<process>-flowchart.html` — single-file page (Mermaid via pinned CDN — needs internet to render), opened in your browser
+- Up to 9 purpose-named stages, max 3 decision diamonds; happy path in one straight line
 - Hover a node for a 1–2 sentence summary; click for full implementation details in a side panel
 - An offer to drill down into any stage with a separate sub-chart
 

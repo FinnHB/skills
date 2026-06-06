@@ -1,5 +1,15 @@
 # Changelog — flow-chart
 
+## 2026-06-06 (v0.6.0)
+- SKILL.md hardened after a three-agent critique (clarity/brevity editor, failure-mode red-team, skill-craftsmanship review). Corrections to outright bugs:
+  - **linkStyle self-check rule was factually wrong** ("declaration order of the error edges" — indices count ALL edges). Empirically verified that an out-of-bounds index throws inside `mermaid.run()` and the top-level `await` kills keyboard wiring, print appendix, and initial selection. New discipline: own-line `%% edge index map:` comment, derive indices from it, delete the red line when no error edges exist (the template's stale sample line would otherwise paint a happy-path edge red).
+  - Red-teamer's proposed *trailing* `%% N` per-edge comments tested and **rejected — they are themselves a parse error** (Mermaid comments must be own-line); both template and instance graphs now parse-validated with mermaid 11.4.1 under jsdom.
+  - Quoting example contradicted the rounded-rect rule (`id["..."]` → `P1("...")`); offline advice was wrong (ESM lazy-loads chunks — vendor the UMD `mermaid.min.js` instead); print appendix injected an unstyled `<h1>` (now h2/h3 with CSS); keyboard handler broke on hyphenated ids (robust DOM-id parsing + hard id rule `[A-Z][A-Za-z0-9]*`).
+- New rules from the failure-mode review: mechanical copy (`cp` + Edit slots only — freehand regeneration silently drops `securityLevel: "loose"` and clicks die without errors); no double quotes inside quoted labels/tooltips; no backticks/`${` in DETAILS bodies; always `flowchart` (never stateDiagram); swimlane/subgraph guidance; bind process/decision/success nodes only, failure causes live in the routing decision's entry; grep self-check for invisible unfilled slots; `open`/`xdg-open` fallback that never blocks.
+- Template now self-verifies: console errors on click-binding ↔ DETAILS key mismatches; header comment is the single-source slot list (SKILL.md just points to it).
+- Calibration from craftsmanship review: stage floor removed (never pad a short process); decision-tree exception added (description promised them, ≤3-diamond cap made them impossible); decidable TD/LR heuristic; brand-color restyles must keep tinted-fill/dark-text/dashed-stop accessibility pattern; `allowed-tools` gains Edit (comma-separated).
+- Rejected: removing the version pin mention entirely (kept as "keep the pinned version" without restating the number); "ask if cwd looks wrong" (report absolute path instead).
+
 ## 2026-06-06 (v0.5.1)
 - Legend moved to the top of the chart card (above the diagram, border-bottom separator) per user preference, reverting the v0.5.0 figure-footer placement.
 
