@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>set-academic-env Flowchart</title>
+<style>
+  :root { --bg:#f6f8fb; --card:#fff; --border:#e3e8f0; --text:#1a2233; --muted:#5b6577; }
+  body { font-family: system-ui, sans-serif; background: var(--bg); color: var(--text);
+         margin: 0; padding: 32px; }
+  header h1 { font-size: 22px; margin: 0 0 4px; }
+  header p  { color: var(--muted); margin: 0 0 20px; font-size: 14px; }
+  .card { background: var(--card); border: 1px solid var(--border); border-radius: 12px;
+          padding: 20px; box-shadow: 0 1px 3px rgb(16 24 40 / .06); }
+  .layout { display: flex; gap: 20px; align-items: flex-start; flex-wrap: wrap; }
+  .chart { flex: 1 1 560px; }
+  #detail { flex: 0 1 320px; position: sticky; top: 24px; }
+  #detail h2 { font-size: 15px; margin: 0 0 8px; }
+  #detail p, #detail li { font-size: 13px; color: var(--muted); line-height: 1.5; }
+  #detail[hidden] { display: none; }
+  .mermaid .node { cursor: pointer; }
+  .mermaidTooltip { background: #1a2233 !important; color: #fff !important;
+                    border-radius: 6px !important; font-size: 12px !important;
+                    padding: 6px 10px !important; max-width: 280px; }
+</style>
+</head>
+<body>
+<header>
+  <h1>Setting up a new academic paper repository</h1>
+  <p>What happens when you run the set-academic-env installer — click a node for details, hover for a summary.</p>
+</header>
+<div class="layout">
+  <div class="card chart">
+<pre class="mermaid">
+flowchart TD
+  S(["Start"]):::startEnd --> D1{"All required tools installed?"}:::decision
+  D1 -- "No" --> E1(["Stop: install missing tools first"]):::stop
+  D1 -- "Yes" --> P1["Generate project files from templates"]:::process
+  P1 --> P2["Install writing workflow and automation"]:::process
+  P2 --> P3["Set up version control"]:::process
+  P3 --> P4["Set up Python environment"]:::process
+  P4 --> P5["Show next steps"]:::process
+  P5 --> Z(["Ready to write"]):::startEnd
+
+  classDef startEnd fill:#2f855a,stroke:#276749,color:#fff
+  classDef stop     fill:#c53030,stroke:#9b2c2c,color:#fff
+  classDef process  fill:#3182ce,stroke:#2b6cb0,color:#fff
+  classDef decision fill:#dd8a12,stroke:#b7791f,color:#fff
+
+  click D1 call nodeDetail() "Checks that the document tools the harness relies on are available, and tells you exactly how to install any that are missing."
+  click P1 call nodeDetail() "Creates the paper's core documents from templates, personalized to this paper. Safe to re-run: asks before touching existing files."
+  click P2 call nodeDetail() "Installs the writing skills, automation hooks, and standard folders that drive the paper workflow."
+  click P3 call nodeDetail() "Makes the paper a git project with quality-check hooks and a first snapshot, without disturbing any existing history."
+  click P4 call nodeDetail() "Creates an isolated Python environment with everything the harness needs."
+  click P5 call nodeDetail() "Prints the human checklist: what to fill in and which command to run first."
+</pre>
+  </div>
+  <aside id="detail" class="card" hidden>
+    <h2 id="detail-title"></h2>
+    <div id="detail-body"></div>
+  </aside>
+</div>
+
+<script type="module">
+import mermaid from "https://cdn.jsdelivr.net/npm/mermaid@11.4.1/dist/mermaid.esm.min.mjs";
+
+const DETAILS = {
+  D1: { title: "Check required writing tools", body: `
+    <p>Verifies these are installed: <code>pandoc</code>, <code>tectonic</code>,
+    <code>chktex</code>, <code>checkcites</code>, <code>latexdiff</code>, <code>git</code>.</p>
+    <ul>
+      <li>If any are missing, it prints the exact <code>brew install</code> commands and stops.</li>
+      <li>Bypass for CI/testing: <code>SKIP_BINARY_CHECK=1</code>.</li>
+    </ul>` },
+  P1: { title: "Generate project files from templates", body: `
+    <ul>
+      <li>Creates CLAUDE.md, CONSTITUTION.md, THEORY_PRIORS.md, SETUP.md, WORKFLOW.md,
+          paper_config.yaml, and config files.</li>
+      <li>Fills in the paper name, today's date, and exact harness version
+          (commit SHAs recorded for reproducibility).</li>
+      <li>Idempotent: prompts before overwriting any file that already exists.</li>
+    </ul>` },
+  P2: { title: "Install writing workflow and automation", body: `
+    <ul>
+      <li>Installs the workflow skills into <code>.claude/skills/</code> —
+          entry points like /start-paper, /scope-paper, /draft-paper, /refine-light,
+          /refine-heavy, /signoff, plus the library skills they rely on.</li>
+      <li>Installs always-on hooks (linting, integrity gates, changelogs) and
+          <code>.claude/settings.json</code> to register them.</li>
+      <li>Creates the standard folders: <code>paper/ worklog/ source/ related/ logs/</code>.</li>
+      <li>Existing hooks, scripts, and settings are kept; existing skills prompt before overwrite.</li>
+    </ul>` },
+  P3: { title: "Set up version control", body: `
+    <ul>
+      <li>New directory: runs <code>git init</code>, wires the pre-commit quality hooks,
+          and makes an initial commit tagged <code>harness-bootstrap</code>.</li>
+      <li>Already a git project: only wires the hooks; history is left untouched.</li>
+      <li>If no git identity is configured, the initial commit is skipped with
+          instructions to do it manually.</li>
+    </ul>` },
+  P4: { title: "Set up Python environment", body: `
+    <ul>
+      <li>Creates <code>.venv/</code> using <code>uv</code> when available
+          (falls back to <code>python3 -m venv</code>).</li>
+      <li>Installs the harness requirements into it.</li>
+      <li>Skippable with <code>SKIP_VENV=1</code>.</li>
+    </ul>` },
+  P5: { title: "Show next steps", body: `
+    <ol>
+      <li>Complete the human-action checklist in SETUP.md.</li>
+      <li>Fill in hard constraints in THEORY_PRIORS.md.</li>
+      <li>Drop source files in <code>source/</code>.</li>
+      <li>Run /onboard-paper (existing draft) or /start-paper (greenfield).</li>
+    </ol>` },
+};
+
+window.nodeDetail = (id) => {
+  const d = DETAILS[id];
+  if (!d) return;
+  document.getElementById("detail").hidden = false;
+  document.getElementById("detail-title").textContent = d.title;
+  document.getElementById("detail-body").innerHTML = d.body;
+};
+
+mermaid.initialize({
+  startOnLoad: false,
+  securityLevel: "loose",
+  theme: "base",
+  themeVariables: { fontFamily: "system-ui, sans-serif", fontSize: "14px",
+                    lineColor: "#94a3b8", edgeLabelBackground: "#f6f8fb" },
+  flowchart: { curve: "basis", padding: 12, nodeSpacing: 40, rankSpacing: 50 },
+});
+await mermaid.run();
+</script>
+</body>
+</html>
