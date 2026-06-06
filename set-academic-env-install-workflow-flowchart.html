@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Install writing workflow — Flowchart</title>
+<style>
+  :root { --bg:#f6f8fb; --card:#fff; --border:#e3e8f0; --text:#1a2233; --muted:#5b6577; }
+  body { font-family: system-ui, sans-serif; background: var(--bg); color: var(--text);
+         margin: 0; padding: 32px; }
+  header h1 { font-size: 22px; margin: 0 0 4px; }
+  header p  { color: var(--muted); margin: 0 0 20px; font-size: 14px; }
+  .card { background: var(--card); border: 1px solid var(--border); border-radius: 12px;
+          padding: 20px; box-shadow: 0 1px 3px rgb(16 24 40 / .06); }
+  .layout { display: flex; gap: 20px; align-items: flex-start; flex-wrap: wrap; }
+  .chart { flex: 1 1 560px; }
+  #detail { flex: 0 1 320px; position: sticky; top: 24px; }
+  #detail h2 { font-size: 15px; margin: 0 0 8px; }
+  #detail p, #detail li { font-size: 13px; color: var(--muted); line-height: 1.5; }
+  #detail[hidden] { display: none; }
+  .mermaid .node { cursor: pointer; }
+  .mermaidTooltip { background: #1a2233 !important; color: #fff !important;
+                    border-radius: 6px !important; font-size: 12px !important;
+                    padding: 6px 10px !important; max-width: 280px; }
+</style>
+</head>
+<body>
+<header>
+  <h1>Install writing workflow and automation</h1>
+  <p>Drill-down into one stage of the set-academic-env installer: how a paper repository gets its skills, hooks, and folders — click a node for details, hover for a summary.</p>
+</header>
+<div class="layout">
+  <div class="card chart">
+<pre class="mermaid">
+flowchart TD
+  S(["Start"]):::startEnd --> P1["Install automation hooks and helper scripts"]:::process
+  P1 --> P2["Create the standard paper folders"]:::process
+  P2 --> P3["Install the writing skills"]:::process
+  P3 --> P4["Register automation in project settings"]:::process
+  P4 --> Z(["Workflow ready"]):::startEnd
+
+  classDef startEnd fill:#2f855a,stroke:#276749,color:#fff
+  classDef process  fill:#3182ce,stroke:#2b6cb0,color:#fff
+
+  click P1 call nodeDetail() "Copies the always-on quality and logging scripts that run automatically during writing sessions. Anything already present is kept."
+  click P2 call nodeDetail() "Creates the fixed folder layout every paper repository shares, so tools and skills know where to find things."
+  click P3 call nodeDetail() "Installs the full set of workflow commands and the library skills they rely on. Asks before replacing any skill that is already installed."
+  click P4 call nodeDetail() "Writes the project settings file that switches the hooks on. An existing settings file is never touched."
+</pre>
+  </div>
+  <aside id="detail" class="card" hidden>
+    <h2 id="detail-title"></h2>
+    <div id="detail-body"></div>
+  </aside>
+</div>
+
+<script type="module">
+import mermaid from "https://cdn.jsdelivr.net/npm/mermaid@11.4.1/dist/mermaid.esm.min.mjs";
+
+const DETAILS = {
+  P1: { title: "Install automation hooks and helper scripts", body: `
+    <p>Into <code>.claude/hooks/</code> and <code>.claude/scripts/</code>, made executable.
+    Existing files are kept, never overwritten.</p>
+    <ul>
+      <li><b>Quality gates:</b> LaTeX linting, layout lint, cross-reference and integrity checks</li>
+      <li><b>Guard rails:</b> data-classification wall, theory-priors fence and state machine,
+          heavy-task approval</li>
+      <li><b>Logging:</b> changelog append, operations log, latexdiff snapshots, AI-tell scan</li>
+      <li><b>Helpers:</b> <code>diff_variants.sh</code>, <code>flatten_tex.py</code></li>
+    </ul>` },
+  P2: { title: "Create the standard paper folders", body: `
+    <ul>
+      <li><code>paper/</code> — the manuscript</li>
+      <li><code>worklog/</code> — with <code>research/</code>, <code>review/</code>, <code>transcripts/</code></li>
+      <li><code>source/</code> — input drafts and materials</li>
+      <li><code>related/</code> — related literature</li>
+      <li><code>logs/</code> — run logs</li>
+    </ul>
+    <p>Only missing folders are created; existing ones are untouched.</p>` },
+  P3: { title: "Install the writing skills", body: `
+    <p>Full skill bodies (not stubs) copied into <code>.claude/skills/</code>, each invocable
+    as a slash command inside the paper repo.</p>
+    <ul>
+      <li><b>Workflow entry points:</b> /start-paper, /onboard-paper, /scope-paper, /draft-paper,
+          /refine-light, /refine-heavy, /research, /verify-symbolic, /verify-numerical,
+          /find-cite, /sync-zotero, /export-coauthor, /signoff</li>
+      <li><b>Library skills they call:</b> references-management, citation-extract, pandoc-import,
+          integrity-gate, theory-verify, sympy, lane1-* checks, lane2-orchestrate</li>
+    </ul>
+    <p>For each skill that already exists, the installer asks before replacing it
+    (skipped silently when running non-interactively).</p>` },
+  P4: { title: "Register automation in project settings", body: `
+    <p>Writes <code>.claude/settings.json</code>, which registers the hooks from step 1 so they
+    actually fire during sessions.</p>
+    <ul>
+      <li>An existing settings file is always kept as-is.</li>
+      <li>If the full template is unavailable, a minimal fallback settings file is written instead.</li>
+    </ul>` },
+};
+
+window.nodeDetail = (id) => {
+  const d = DETAILS[id];
+  if (!d) return;
+  document.getElementById("detail").hidden = false;
+  document.getElementById("detail-title").textContent = d.title;
+  document.getElementById("detail-body").innerHTML = d.body;
+};
+
+mermaid.initialize({
+  startOnLoad: false,
+  securityLevel: "loose",
+  theme: "base",
+  themeVariables: { fontFamily: "system-ui, sans-serif", fontSize: "14px",
+                    lineColor: "#94a3b8", edgeLabelBackground: "#f6f8fb" },
+  flowchart: { curve: "basis", padding: 12, nodeSpacing: 40, rankSpacing: 50 },
+});
+await mermaid.run();
+</script>
+</body>
+</html>

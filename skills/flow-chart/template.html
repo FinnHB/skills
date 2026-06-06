@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<!-- flow-chart skill template. Replace: [Process Name], the subtitle, the
+     mermaid graph inside <pre class="mermaid">, the click bindings, and the
+     DETAILS map. Keep everything else as-is. -->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>[Process] Flowchart</title>
+<style>
+  :root { --bg:#f6f8fb; --card:#fff; --border:#e3e8f0; --text:#1a2233; --muted:#5b6577; }
+  body { font-family: system-ui, sans-serif; background: var(--bg); color: var(--text);
+         margin: 0; padding: 32px; }
+  header h1 { font-size: 22px; margin: 0 0 4px; }
+  header p  { color: var(--muted); margin: 0 0 20px; font-size: 14px; }
+  .card { background: var(--card); border: 1px solid var(--border); border-radius: 12px;
+          padding: 20px; box-shadow: 0 1px 3px rgb(16 24 40 / .06); }
+  .layout { display: flex; gap: 20px; align-items: flex-start; flex-wrap: wrap; }
+  .chart { flex: 1 1 560px; }
+  #detail { flex: 0 1 320px; position: sticky; top: 24px; }
+  #detail h2 { font-size: 15px; margin: 0 0 8px; }
+  #detail p, #detail li { font-size: 13px; color: var(--muted); line-height: 1.5; }
+  #detail[hidden] { display: none; }
+  .mermaid .node { cursor: pointer; }
+  .mermaidTooltip { background: #1a2233 !important; color: #fff !important;
+                    border-radius: 6px !important; font-size: 12px !important;
+                    padding: 6px 10px !important; max-width: 280px; }
+</style>
+</head>
+<body>
+<header>
+  <h1>[Process Name]</h1>
+  <p>[One-sentence purpose statement] — click a node for details, hover for a summary.</p>
+</header>
+<div class="layout">
+  <div class="card chart">
+<pre class="mermaid">
+flowchart TD
+  S(["Start"]):::startEnd --> D1{"Prerequisites met?"}:::decision
+  D1 -- "No" --> E1(["Stop: setup cannot continue"]):::stop
+  D1 -- "Yes" --> P1["First stage"]:::process
+  P1 --> P2["Second stage"]:::process
+  P2 --> Z(["Done"]):::startEnd
+
+  classDef startEnd fill:#2f855a,stroke:#276749,color:#fff
+  classDef stop     fill:#c53030,stroke:#9b2c2c,color:#fff
+  classDef process  fill:#3182ce,stroke:#2b6cb0,color:#fff
+  classDef decision fill:#dd8a12,stroke:#b7791f,color:#fff
+
+  click P1 call nodeDetail() "1-2 sentence tooltip"
+  click P2 call nodeDetail() "1-2 sentence tooltip"
+</pre>
+  </div>
+  <aside id="detail" class="card" hidden>
+    <h2 id="detail-title"></h2>
+    <div id="detail-body"></div>
+  </aside>
+</div>
+
+<script type="module">
+import mermaid from "https://cdn.jsdelivr.net/npm/mermaid@11.4.1/dist/mermaid.esm.min.mjs";
+
+const DETAILS = {
+  P1: { title: "First stage", body: "<ul><li>implementation specifics live here</li></ul>" },
+  P2: { title: "Second stage", body: "<p>…</p>" },
+};
+
+window.nodeDetail = (id) => {
+  const d = DETAILS[id];
+  if (!d) return;
+  document.getElementById("detail").hidden = false;
+  document.getElementById("detail-title").textContent = d.title;
+  document.getElementById("detail-body").innerHTML = d.body;
+};
+
+mermaid.initialize({
+  startOnLoad: false,
+  securityLevel: "loose",          // required for click callbacks
+  theme: "base",
+  themeVariables: { fontFamily: "system-ui, sans-serif", fontSize: "14px",
+                    lineColor: "#94a3b8", edgeLabelBackground: "#f6f8fb" },
+  flowchart: { curve: "basis", padding: 12, nodeSpacing: 40, rankSpacing: 50 },
+});
+await mermaid.run();
+</script>
+</body>
+</html>
