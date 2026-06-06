@@ -1,5 +1,9 @@
 # Changelog — flow-chart
 
+## 2026-06-06 (v0.4.0)
+- Redesigned `template.html` with an "engineering paper" design system: dot-grid backdrop, Fraunces display + IBM Plex Sans/Mono typography, muted committed palette, legend chips, refined cards/shadows, always-visible detail panel with placeholder, staggered load animation (with reduced-motion fallback). Principles adapted from the official frontend-design plugin's guidance, filtered for document-grade restraint; plugin itself not installed (prose-only, tuned for bold app UIs, would trigger on all frontend work).
+- Design lives entirely in `template.html` (progressive disclosure) — SKILL.md gained only one sentence: don't restyle per chart unless asked.
+
 ## 2026-06-06 (v0.3.1)
 - Added "Scope first" rule after testing on a named component (refine-heavy within AcademicPaperWriter): chart exactly what the user named; for a whole repo chart its primary user-facing process; if ambiguous, present concrete options instead of guessing (user-confirmed behavior).
 

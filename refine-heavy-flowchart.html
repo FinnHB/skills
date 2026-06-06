@@ -3,30 +3,67 @@
 <head>
 <meta charset="utf-8">
 <title>refine-heavy Flowchart</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400&display=swap" rel="stylesheet">
 <style>
-  :root { --bg:#f6f8fb; --card:#fff; --border:#e3e8f0; --text:#1a2233; --muted:#5b6577; }
-  body { font-family: system-ui, sans-serif; background: var(--bg); color: var(--text);
-         margin: 0; padding: 32px; }
-  header h1 { font-size: 22px; margin: 0 0 4px; }
-  header p  { color: var(--muted); margin: 0 0 20px; font-size: 14px; }
-  .card { background: var(--card); border: 1px solid var(--border); border-radius: 12px;
-          padding: 20px; box-shadow: 0 1px 3px rgb(16 24 40 / .06); }
-  .layout { display: flex; gap: 20px; align-items: flex-start; flex-wrap: wrap; }
+  :root {
+    --paper:#f7f6f3; --card:#fffefb; --border:#e7e4dd; --ink:#1c1d20;
+    --muted:#6b6f76; --accent:#3b5bdb;
+    --ok:#2f9e44; --stop:#c92a2a; --process:#3b5bdb; --decision:#e8930c;
+  }
+  body {
+    font-family: "IBM Plex Sans", system-ui, sans-serif;
+    background-color: var(--paper);
+    background-image: radial-gradient(rgba(28,29,32,.055) 1px, transparent 1px);
+    background-size: 18px 18px;
+    color: var(--ink); margin: 0; padding: 40px clamp(20px, 4vw, 56px);
+  }
+  .kicker { font-size: 11px; font-weight: 600; letter-spacing: .14em;
+            text-transform: uppercase; color: var(--accent); margin: 0 0 6px; }
+  h1 { font-family: "Fraunces", Georgia, serif; font-weight: 600;
+       font-size: clamp(24px, 3.2vw, 32px); margin: 0 0 6px; letter-spacing: -.01em; }
+  .subtitle { color: var(--muted); margin: 0 0 14px; font-size: 14.5px; max-width: 70ch; }
+  .legend { display: flex; gap: 16px; flex-wrap: wrap; margin: 0 0 22px;
+            padding-top: 14px; border-top: 1px solid var(--border); }
+  .chip { display: flex; align-items: center; gap: 7px; font-size: 12px; color: var(--muted); }
+  .chip .dot { width: 9px; height: 9px; border-radius: 3px; }
+  .card { background: var(--card); border: 1px solid var(--border); border-radius: 14px;
+          padding: 22px; box-shadow: 0 1px 2px rgb(28 29 32 / .04), 0 8px 24px rgb(28 29 32 / .05); }
+  .layout { display: flex; gap: 22px; align-items: flex-start; flex-wrap: wrap; }
   .chart { flex: 1 1 560px; }
-  #detail { flex: 0 1 320px; position: sticky; top: 24px; }
-  #detail h2 { font-size: 15px; margin: 0 0 8px; }
-  #detail p, #detail li { font-size: 13px; color: var(--muted); line-height: 1.5; }
-  #detail[hidden] { display: none; }
+  #detail { flex: 0 1 330px; position: sticky; top: 24px; }
+  #detail h2 { font-family: "Fraunces", Georgia, serif; font-weight: 600;
+               font-size: 17px; margin: 0 0 10px; }
+  #detail p, #detail li { font-size: 13.5px; color: var(--muted); line-height: 1.55; }
+  #detail ul, #detail ol { padding-left: 18px; }
+  #detail b { color: var(--ink); font-weight: 600; }
+  #detail .placeholder { font-size: 13.5px; color: var(--muted); font-style: italic; }
+  code { font-family: "IBM Plex Mono", ui-monospace, monospace; font-size: .85em;
+         background: #f1efe9; border: 1px solid #e3e0d6; border-radius: 4px;
+         padding: .08em .35em; color: var(--ink); }
   .mermaid .node { cursor: pointer; }
-  .mermaidTooltip { background: #1a2233 !important; color: #fff !important;
+  .mermaidTooltip { background: var(--ink) !important; color: #fff !important;
                     border-radius: 6px !important; font-size: 12px !important;
-                    padding: 6px 10px !important; max-width: 280px; }
+                    font-family: "IBM Plex Sans", sans-serif !important;
+                    padding: 7px 11px !important; max-width: 290px; line-height: 1.45; }
+  @keyframes rise { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
+  header { animation: rise .5s ease-out both; }
+  .chart  { animation: rise .5s .12s ease-out both; }
+  #detail { animation: rise .5s .22s ease-out both; }
+  @media (prefers-reduced-motion: reduce) { header, .chart, #detail { animation: none; } }
 </style>
 </head>
 <body>
 <header>
-  <h1>Deep revision of a section (refine-heavy)</h1>
-  <p>What happens when you ask the AcademicPaperWriter harness for a full re-evaluation and rewrite of one section — click a node for details, hover for a summary.</p>
+  <p class="kicker">Process map · AcademicPaperWriter</p>
+  <h1>Deep revision of a section</h1>
+  <p class="subtitle">What happens when you ask the harness for a full re-evaluation and rewrite of one section (refine-heavy) — hover a node for a summary, click for details.</p>
+  <div class="legend">
+    <span class="chip"><span class="dot" style="background:var(--ok)"></span>Start / success</span>
+    <span class="chip"><span class="dot" style="background:var(--process)"></span>Stage</span>
+    <span class="chip"><span class="dot" style="background:var(--decision)"></span>Decision</span>
+    <span class="chip"><span class="dot" style="background:var(--stop)"></span>Stop</span>
+  </div>
 </header>
 <div class="layout">
   <div class="card chart">
@@ -43,10 +80,10 @@ flowchart TD
   D2 -- "Yes" --> P5["Check citations and language"]:::process
   P5 --> Z(["Section refined"]):::startEnd
 
-  classDef startEnd fill:#2f855a,stroke:#276749,color:#fff
-  classDef stop     fill:#c53030,stroke:#9b2c2c,color:#fff
-  classDef process  fill:#3182ce,stroke:#2b6cb0,color:#fff
-  classDef decision fill:#dd8a12,stroke:#b7791f,color:#fff
+  classDef startEnd fill:#2f9e44,stroke:#2b8a3e,color:#fff
+  classDef stop     fill:#c92a2a,stroke:#a61e1e,color:#fff
+  classDef process  fill:#3b5bdb,stroke:#2f44ad,color:#fff
+  classDef decision fill:#e8930c,stroke:#c77d0a,color:#fff
 
   click P1 call nodeDetail() "Silently reads the paper's rules, constraints, config, and research notes, then confirms which section it is about to work on before doing anything."
   click P2 call nodeDetail() "Produces a structured critique: what works, what is broken, a proposed rewrite direction, and how invasive the rewrite would be."
@@ -58,9 +95,9 @@ flowchart TD
   click Z call nodeDetail() "You get a one-screen summary, a dated review report, and an automatic diff of exactly what changed."
 </pre>
   </div>
-  <aside id="detail" class="card" hidden>
-    <h2 id="detail-title"></h2>
-    <div id="detail-body"></div>
+  <aside id="detail" class="card">
+    <h2 id="detail-title">Details</h2>
+    <div id="detail-body"><p class="placeholder">Click a stage in the chart to see what it carries.</p></div>
   </aside>
 </div>
 
@@ -137,7 +174,6 @@ const DETAILS = {
 window.nodeDetail = (id) => {
   const d = DETAILS[id];
   if (!d) return;
-  document.getElementById("detail").hidden = false;
   document.getElementById("detail-title").textContent = d.title;
   document.getElementById("detail-body").innerHTML = d.body;
 };
@@ -146,9 +182,9 @@ mermaid.initialize({
   startOnLoad: false,
   securityLevel: "loose",
   theme: "base",
-  themeVariables: { fontFamily: "system-ui, sans-serif", fontSize: "14px",
-                    lineColor: "#94a3b8", edgeLabelBackground: "#f6f8fb" },
-  flowchart: { curve: "basis", padding: 12, nodeSpacing: 40, rankSpacing: 50 },
+  themeVariables: { fontFamily: "'IBM Plex Sans', system-ui, sans-serif", fontSize: "14px",
+                    lineColor: "#a8a49b", edgeLabelBackground: "#f7f6f3" },
+  flowchart: { curve: "basis", padding: 14, nodeSpacing: 42, rankSpacing: 54 },
 });
 await mermaid.run();
 </script>
