@@ -1,5 +1,8 @@
 # Changelog — flow-chart
 
+## 2026-06-06 (v0.3.1)
+- Added "Scope first" rule after testing on a named component (refine-heavy within AcademicPaperWriter): chart exactly what the user named; for a whole repo chart its primary user-facing process; if ambiguous, present concrete options instead of guessing (user-confirmed behavior).
+
 ## 2026-06-06 (v0.3.0)
 - Condensed SKILL.md from ~200 to ~45 lines after user feedback that it was much too long: extracted the embedded HTML boilerplate into `template.html` (the skill now copies and fills it), merged the seven rule sections into four, kept all hard constraints (node budget, banned label content, diamond test, self-check, output contract).
 - Added explicit drill-down convention: `<slug>-<stage>-flowchart.html`, same budget applied inside the stage.

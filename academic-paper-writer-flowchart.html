@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>AcademicPaperWriter Flowchart</title>
+<style>
+  :root { --bg:#f6f8fb; --card:#fff; --border:#e3e8f0; --text:#1a2233; --muted:#5b6577; }
+  body { font-family: system-ui, sans-serif; background: var(--bg); color: var(--text);
+         margin: 0; padding: 32px; }
+  header h1 { font-size: 22px; margin: 0 0 4px; }
+  header p  { color: var(--muted); margin: 0 0 20px; font-size: 14px; }
+  .card { background: var(--card); border: 1px solid var(--border); border-radius: 12px;
+          padding: 20px; box-shadow: 0 1px 3px rgb(16 24 40 / .06); }
+  .layout { display: flex; gap: 20px; align-items: flex-start; flex-wrap: wrap; }
+  .chart { flex: 1 1 560px; }
+  #detail { flex: 0 1 320px; position: sticky; top: 24px; }
+  #detail h2 { font-size: 15px; margin: 0 0 8px; }
+  #detail p, #detail li { font-size: 13px; color: var(--muted); line-height: 1.5; }
+  #detail[hidden] { display: none; }
+  .mermaid .node { cursor: pointer; }
+  .mermaidTooltip { background: #1a2233 !important; color: #fff !important;
+                    border-radius: 6px !important; font-size: 12px !important;
+                    padding: 6px 10px !important; max-width: 280px; }
+</style>
+</head>
+<body>
+<header>
+  <h1>Writing a paper with AcademicPaperWriter</h1>
+  <p>How an economics paper goes from idea (or an existing draft) to a signed-off, verifiable manuscript — click a node for details, hover for a summary.</p>
+</header>
+<div class="layout">
+  <div class="card chart">
+<pre class="mermaid">
+flowchart TD
+  S(["Start"]):::startEnd --> P1["Set up the paper repository"]:::process
+  P1 --> D1{"Already have a draft?"}:::decision
+  D1 -- "No" --> P2["Develop and scope the research idea"]:::process
+  P2 --> P3["Write the first full draft"]:::process
+  D1 -- "Yes" --> P4["Import the existing draft"]:::process
+  P3 --> P5["Refine, verify, and cite iteratively"]:::process
+  P4 --> P5
+  P5 --> P6["Finalize and export for co-authors"]:::process
+  P6 --> Z(["Paper ready"]):::startEnd
+
+  classDef startEnd fill:#2f855a,stroke:#276749,color:#fff
+  classDef process  fill:#3182ce,stroke:#2b6cb0,color:#fff
+  classDef decision fill:#dd8a12,stroke:#b7791f,color:#fff
+
+  click P1 call nodeDetail() "One paper = one self-contained git repo. A bootstrap command copies the whole writing harness in, so the paper never depends on this source repo."
+  click D1 call nodeDetail() "Two entry tracks: start from scratch, or onboard a draft you already have."
+  click P2 call nodeDetail() "Find, validate, and stress-test the research question, then turn it into a concrete research plan."
+  click P3 call nodeDetail() "Produce the first complete manuscript from the research plan. LaTeX is the canonical source of truth from here on."
+  click P4 call nodeDetail() "Import a Word draft, extract its citations, and flag every spot that needs human rescue."
+  click P5 call nodeDetail() "The main loop: reviewed revision passes, backed by literature search, Zotero-managed citations, and symbolic or numerical verification of the model."
+  click P6 call nodeDetail() "Final integrity gate, a tamper-evident record of the exact manuscript, and a clean package for co-authors."
+</pre>
+  </div>
+  <aside id="detail" class="card" hidden>
+    <h2 id="detail-title"></h2>
+    <div id="detail-body"></div>
+  </aside>
+</div>
+
+<script type="module">
+import mermaid from "https://cdn.jsdelivr.net/npm/mermaid@11.4.1/dist/mermaid.esm.min.mjs";
+
+const DETAILS = {
+  P1: { title: "Set up the paper repository", body: `
+    <p>Run the global bootstrap (<code>/set-academic-env</code>) in a fresh directory. It
+    checks the required document tools, copies in the workflow skills, automation hooks,
+    and templates, initializes git, and creates the Python environment.</p>
+    <p>Design principle: the harness is <i>copied, not referenced</i> — every paper repo is
+    portable and self-contained, with the harness version pinned for reproducibility.</p>
+    <p><a href="set-academic-env-flowchart.html">→ Drill-down: the bootstrap itself</a></p>` },
+  D1: { title: "Already have a draft?", body: `
+    <ul>
+      <li><b>No</b> — greenfield track: develop the idea inside the harness from day one.</li>
+      <li><b>Yes</b> — onboarding track: bring an existing draft into the harness layout.</li>
+    </ul>` },
+  P2: { title: "Develop and scope the research idea", body: `
+    <ul>
+      <li><code>/ideate</code> — propose 3–5 candidate questions, validate each against the
+          literature, and triage (alive / crowded / feasibility-risk / dead).</li>
+      <li><code>/start-paper</code> — grill the chosen idea into a written statement of the
+          paper's contribution.</li>
+      <li><code>/scope-paper</code> — turn it into a research brief: model class, empirical
+          strategy, target literature.</li>
+    </ul>` },
+  P3: { title: "Write the first full draft", body: `
+    <p><code>/draft-paper</code> produces the first complete LaTeX manuscript from the
+    research brief, with the model's hard constraints (theory priors) declared up front
+    so automated checks can hold the draft to them.</p>` },
+  P4: { title: "Import the existing draft", body: `
+    <ul>
+      <li><code>/onboard-paper</code> converts a Word draft to LaTeX, extracts citations,
+          and aligns everything with the harness layout.</li>
+      <li>Anything it can't convert faithfully is marked for human rescue and listed for
+          review afterwards.</li>
+      <li>Requires confirming the paper's data is public before import.</li>
+    </ul>` },
+  P5: { title: "Refine, verify, and cite iteratively", body: `
+    <p><b>Revision passes</b> — <code>/refine-light</code> (framing, clarity, fast checks)
+    and <code>/refine-heavy</code> (full integrity gate plus deep verification).</p>
+    <p><b>Available at any time:</b></p>
+    <ul>
+      <li><code>/research</code> — deep literature search with a written report; every
+          citation added to Zotero is individually confirmed.</li>
+      <li><code>/find-cite</code> / <code>/sync-zotero</code> — locate citations for claims;
+          keep the bibliography in lockstep with Zotero.</li>
+      <li><code>/verify-symbolic</code> — algebra spot-checks of equations (SymPy).</li>
+      <li><code>/verify-numerical</code> — solve the model numerically (Dynare or Julia)
+          and check it is well-behaved; always approval-gated.</li>
+      <li><code>/add-module</code> — scaffold empirical code with pipeline provenance.</li>
+      <li><code>/match-journal</code> / <code>/referee</code> — advisory journal fit and
+          adversarial referee reports (non-blocking).</li>
+    </ul>
+    <p>Manuscript variants (e.g. a short journal version) are supported throughout.</p>` },
+  P6: { title: "Finalize and export for co-authors", body: `
+    <ul>
+      <li><code>/signoff</code> — runs the final integrity gate and pins the exact
+          manuscript version with a cryptographic fingerprint, creating a tamper-evident
+          record of what was approved.</li>
+      <li><code>/export-coauthor</code> — produces a clean package for co-authors, free of
+          harness internals.</li>
+    </ul>` },
+};
+
+window.nodeDetail = (id) => {
+  const d = DETAILS[id];
+  if (!d) return;
+  document.getElementById("detail").hidden = false;
+  document.getElementById("detail-title").textContent = d.title;
+  document.getElementById("detail-body").innerHTML = d.body;
+};
+
+mermaid.initialize({
+  startOnLoad: false,
+  securityLevel: "loose",
+  theme: "base",
+  themeVariables: { fontFamily: "system-ui, sans-serif", fontSize: "14px",
+                    lineColor: "#94a3b8", edgeLabelBackground: "#f6f8fb" },
+  flowchart: { curve: "basis", padding: 12, nodeSpacing: 40, rankSpacing: 50 },
+});
+await mermaid.run();
+</script>
+</body>
+</html>

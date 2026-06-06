@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>refine-heavy Flowchart</title>
+<style>
+  :root { --bg:#f6f8fb; --card:#fff; --border:#e3e8f0; --text:#1a2233; --muted:#5b6577; }
+  body { font-family: system-ui, sans-serif; background: var(--bg); color: var(--text);
+         margin: 0; padding: 32px; }
+  header h1 { font-size: 22px; margin: 0 0 4px; }
+  header p  { color: var(--muted); margin: 0 0 20px; font-size: 14px; }
+  .card { background: var(--card); border: 1px solid var(--border); border-radius: 12px;
+          padding: 20px; box-shadow: 0 1px 3px rgb(16 24 40 / .06); }
+  .layout { display: flex; gap: 20px; align-items: flex-start; flex-wrap: wrap; }
+  .chart { flex: 1 1 560px; }
+  #detail { flex: 0 1 320px; position: sticky; top: 24px; }
+  #detail h2 { font-size: 15px; margin: 0 0 8px; }
+  #detail p, #detail li { font-size: 13px; color: var(--muted); line-height: 1.5; }
+  #detail[hidden] { display: none; }
+  .mermaid .node { cursor: pointer; }
+  .mermaidTooltip { background: #1a2233 !important; color: #fff !important;
+                    border-radius: 6px !important; font-size: 12px !important;
+                    padding: 6px 10px !important; max-width: 280px; }
+</style>
+</head>
+<body>
+<header>
+  <h1>Deep revision of a section (refine-heavy)</h1>
+  <p>What happens when you ask the AcademicPaperWriter harness for a full re-evaluation and rewrite of one section — click a node for details, hover for a summary.</p>
+</header>
+<div class="layout">
+  <div class="card chart">
+<pre class="mermaid">
+flowchart TD
+  S(["Start"]):::startEnd --> P1["Load the paper's context"]:::process
+  P1 --> P2["Critique the target section"]:::process
+  P2 --> D1{"Approve the direction?"}:::decision
+  D1 -- "Cancel" --> E0(["Stop: nothing changed"]):::stop
+  D1 -- "Approve" --> P3["Rewrite the section"]:::process
+  P3 --> P4["Run deep integrity checks"]:::process
+  P4 --> D2{"All checks pass?"}:::decision
+  D2 -- "No" --> E1(["Stop: review issues, re-run"]):::stop
+  D2 -- "Yes" --> P5["Check citations and language"]:::process
+  P5 --> Z(["Section refined"]):::startEnd
+
+  classDef startEnd fill:#2f855a,stroke:#276749,color:#fff
+  classDef stop     fill:#c53030,stroke:#9b2c2c,color:#fff
+  classDef process  fill:#3182ce,stroke:#2b6cb0,color:#fff
+  classDef decision fill:#dd8a12,stroke:#b7791f,color:#fff
+
+  click P1 call nodeDetail() "Silently reads the paper's rules, constraints, config, and research notes, then confirms which section it is about to work on before doing anything."
+  click P2 call nodeDetail() "Produces a structured critique: what works, what is broken, a proposed rewrite direction, and how invasive the rewrite would be."
+  click D1 call nodeDetail() "A mandatory human gate. Nothing is rewritten until you explicitly approve the proposed direction — you can also amend it or walk away."
+  click P3 call nodeDetail() "Rewrites only the approved section, keeping AI-attribution markers, flagging open questions, and citing only already-validated sources."
+  click P4 call nodeDetail() "A three-layer mathematical integrity gate checks the rewritten section, retrying fixes automatically before giving up."
+  click D2 call nodeDetail() "If the gate still fails after retries, the run halts with a written report — the rewrite never silently proceeds on broken math."
+  click P5 call nodeDetail() "Four parallel checks on citations, cross-references, and AI-sounding language; findings are recorded but do not block."
+  click Z call nodeDetail() "You get a one-screen summary, a dated review report, and an automatic diff of exactly what changed."
+</pre>
+  </div>
+  <aside id="detail" class="card" hidden>
+    <h2 id="detail-title"></h2>
+    <div id="detail-body"></div>
+  </aside>
+</div>
+
+<script type="module">
+import mermaid from "https://cdn.jsdelivr.net/npm/mermaid@11.4.1/dist/mermaid.esm.min.mjs";
+
+const DETAILS = {
+  P1: { title: "Load the paper's context", body: `
+    <p>Read without prompting: <code>THEORY_PRIORS.md</code>, <code>CONSTITUTION.md</code>,
+    <code>paper_config.yaml</code>, the original source PDF (if present), the target section
+    of the manuscript, related-paper notes, and the research-notes index.</p>
+    <ul>
+      <li>Resolves which manuscript to act on — the default, or a named variant via
+          <code>--variant</code> (unknown variants are refused with the known list).</li>
+      <li>Research notes are pointer-only: every citation must resolve to a validated
+          Zotero source, never to note prose.</li>
+      <li>Ends with a lightweight "ready to critique — proceed?" check-in (any reply
+          continues; this is not the approval gate).</li>
+    </ul>` },
+  P2: { title: "Critique the target section", body: `
+    <p>Structured critique surfaced in conversation:</p>
+    <ul>
+      <li><b>What works</b> / <b>what's broken or weak</b> (with line and equation references)</li>
+      <li><b>Proposed direction</b> — 1–3 sentences on what changes and what stays</li>
+      <li><b>Scope</b> — conservative, moderate, or significant</li>
+    </ul>` },
+  D1: { title: "Approve the direction?", body: `
+    <p>Mandatory gate — the rewrite cannot start without it.</p>
+    <ul>
+      <li><b>Approve</b> — proceed as proposed.</li>
+      <li><b>Amend</b> — describe changes; the updated direction is re-confirmed first.</li>
+      <li><b>Cancel</b> — exit with the manuscript untouched.</li>
+    </ul>` },
+  P3: { title: "Rewrite the section", body: `
+    <ul>
+      <li>Preserves per-paragraph AI-attribution markers (<code>% AI:</code>).</li>
+      <li>Marks unknowns as questions (<code>% TKTK:</code>) instead of guessing or re-asking mid-rewrite.</li>
+      <li>New citations only from keys already in the bibliography — never from research notes.</li>
+      <li>Honors all constitution rules (notation, authorship, verification discipline).</li>
+      <li>Every edit is auto-snapshotted by a diff hook for the final report.</li>
+    </ul>` },
+  P4: { title: "Run deep integrity checks", body: `
+    <p>The integrity gate (heavy mode) checks three layers:</p>
+    <ol>
+      <li><b>Notational coherence</b> — undefined symbols, equation/variable balance</li>
+      <li><b>Class-aware coherence</b> — does the math behave like its declared model class?</li>
+      <li><b>Symbolic spot-checks</b> — algebra verified with SymPy</li>
+    </ol>
+    <p>Layer-1 failures are auto-fixed and retried up to 2 times inside the gate.
+    Results are written to a dated report in <code>worklog/review/</code>.</p>` },
+  D2: { title: "All checks pass?", body: `
+    <p><b>Fail after retries:</b> the run halts and points to the review report; you fix the
+    issues and re-run. The rewrite is never handed back on top of failing math.</p>
+    <p><b>Pass (or warnings only):</b> continue to the non-blocking checks.</p>` },
+  P5: { title: "Check citations and language", body: `
+    <p>Four checks run in parallel on the rewritten section:</p>
+    <ul>
+      <li>Every cited key exists in the bibliography</li>
+      <li>Cited claims actually match their sources</li>
+      <li>All cross-references and equation references resolve</li>
+      <li>Scan for AI-sounding vocabulary telltales</li>
+    </ul>
+    <p>Findings are appended to the same review report; they warn rather than block.</p>` },
+  Z: { title: "Section refined", body: `
+    <p>Hand-back summary shows gate status, flag counts, and where everything lives:</p>
+    <ul>
+      <li>Review report: <code>worklog/review/refine-&lt;timestamp&gt;.md</code> (+ JSON sidecar)</li>
+      <li>Diff of the rewrite: <code>worklog/transcripts/refine-&lt;timestamp&gt;.diff</code></li>
+    </ul>
+    <p>If anything was flagged, the harness reminds you to resolve it before sign-off or
+    sharing with co-authors.</p>` },
+};
+
+window.nodeDetail = (id) => {
+  const d = DETAILS[id];
+  if (!d) return;
+  document.getElementById("detail").hidden = false;
+  document.getElementById("detail-title").textContent = d.title;
+  document.getElementById("detail-body").innerHTML = d.body;
+};
+
+mermaid.initialize({
+  startOnLoad: false,
+  securityLevel: "loose",
+  theme: "base",
+  themeVariables: { fontFamily: "system-ui, sans-serif", fontSize: "14px",
+                    lineColor: "#94a3b8", edgeLabelBackground: "#f6f8fb" },
+  flowchart: { curve: "basis", padding: 12, nodeSpacing: 40, rankSpacing: 50 },
+});
+await mermaid.run();
+</script>
+</body>
+</html>
