@@ -2,90 +2,114 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<title>refine-heavy Flowchart</title>
+<title>Deep revision of a section · Process map</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400&display=swap" rel="stylesheet">
 <style>
   :root {
     --paper:#f7f6f3; --card:#fffefb; --border:#e7e4dd; --ink:#1c1d20;
-    --muted:#6b6f76; --accent:#3b5bdb;
+    --ink-soft:#3a3d42; --muted:#6b6f76; --accent:#3b5bdb;
+    --code-bg:#f1efe9; --code-border:#e3e0d6;
     --ok:#2f9e44; --stop:#c92a2a; --process:#3b5bdb; --decision:#e8930c;
   }
   body {
     font-family: "IBM Plex Sans", system-ui, sans-serif;
     background-color: var(--paper);
-    background-image: radial-gradient(rgba(28,29,32,.055) 1px, transparent 1px);
-    background-size: 18px 18px;
-    color: var(--ink); margin: 0; padding: 40px clamp(20px, 4vw, 56px);
+    background-image: radial-gradient(circle, rgba(28,29,32,.06) .8px, transparent 1.6px);
+    background-size: 16px 16px;
+    color: var(--ink); line-height: 1.55;
+    margin: 0; padding: 40px clamp(20px, 4vw, 56px);
   }
-  .kicker { font-size: 11px; font-weight: 600; letter-spacing: .14em;
-            text-transform: uppercase; color: var(--accent); margin: 0 0 6px; }
+  .kicker { font-size: 12px; font-weight: 600; letter-spacing: .14em;
+            text-transform: uppercase; color: var(--muted); margin: 0 0 8px; }
+  .kicker .name { text-transform: none; font-family: "IBM Plex Mono", monospace;
+                  font-weight: 400; letter-spacing: .02em; }
   h1 { font-family: "Fraunces", Georgia, serif; font-weight: 600;
-       font-size: clamp(24px, 3.2vw, 32px); margin: 0 0 6px; letter-spacing: -.01em; }
-  .subtitle { color: var(--muted); margin: 0 0 14px; font-size: 14.5px; max-width: 70ch; }
-  .legend { display: flex; gap: 16px; flex-wrap: wrap; margin: 0 0 22px;
-            padding-top: 14px; border-top: 1px solid var(--border); }
-  .chip { display: flex; align-items: center; gap: 7px; font-size: 12px; color: var(--muted); }
+       font-size: clamp(26px, 3.2vw, 34px); line-height: 1.15;
+       text-wrap: balance; margin: 0 0 8px; letter-spacing: -.015em; }
+  .subtitle { color: var(--muted); margin: 0 0 24px; font-size: 15px;
+              line-height: 1.5; max-width: 70ch; }
+  .card { background: var(--card); border: 1px solid var(--border); border-radius: 10px;
+          padding: 24px; box-shadow: 0 1px 2px rgb(28 29 32 / .05), 0 2px 8px rgb(28 29 32 / .04); }
+  .layout { display: flex; gap: 24px; align-items: flex-start; flex-wrap: wrap; }
+  .chart { flex: 1 1 560px; overflow-x: auto; }
+  pre.mermaid { margin: 0; display: flex; justify-content: center; }
+  .legend { display: flex; gap: 16px; flex-wrap: wrap;
+            border-top: 1px solid var(--border);
+            margin: 20px -24px -8px; padding: 14px 24px 0; }
+  .chip { display: flex; align-items: center; gap: 7px; font-size: 12.5px; color: #5a5e66; }
   .chip .dot { width: 9px; height: 9px; border-radius: 3px; }
-  .card { background: var(--card); border: 1px solid var(--border); border-radius: 14px;
-          padding: 22px; box-shadow: 0 1px 2px rgb(28 29 32 / .04), 0 8px 24px rgb(28 29 32 / .05); }
-  .layout { display: flex; gap: 22px; align-items: flex-start; flex-wrap: wrap; }
-  .chart { flex: 1 1 560px; }
-  #detail { flex: 0 1 330px; position: sticky; top: 24px; }
+  #detail { flex: 0 1 330px; position: sticky; top: 40px; min-height: 180px; }
   #detail h2 { font-family: "Fraunces", Georgia, serif; font-weight: 600;
-               font-size: 17px; margin: 0 0 10px; }
-  #detail p, #detail li { font-size: 13.5px; color: var(--muted); line-height: 1.55; }
+               font-size: 18px; margin: 0 0 10px; }
+  #detail p, #detail li { font-size: 14px; color: var(--ink-soft); line-height: 1.55; }
   #detail ul, #detail ol { padding-left: 18px; }
-  #detail b { color: var(--ink); font-weight: 600; }
-  #detail .placeholder { font-size: 13.5px; color: var(--muted); font-style: italic; }
+  #detail .placeholder { color: #9a9da3; }
   code { font-family: "IBM Plex Mono", ui-monospace, monospace; font-size: .85em;
-         background: #f1efe9; border: 1px solid #e3e0d6; border-radius: 4px;
-         padding: .08em .35em; color: var(--ink); }
-  .mermaid .node { cursor: pointer; }
+         background: var(--code-bg); border: 1px solid var(--code-border);
+         border-radius: 4px; padding: .08em .35em; color: var(--ink); }
+  .mermaid .node { cursor: default; }
+  .mermaid .node.clickable { cursor: pointer; transition: filter .15s ease; }
+  .mermaid .node.clickable:hover { filter: brightness(.97) drop-shadow(0 2px 5px rgb(28 29 32 / .18)); }
+  .mermaid .node.selected rect,
+  .mermaid .node.selected polygon { stroke: var(--ink); stroke-width: 2.5px; }
+  .mermaid .node:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
+  .mermaid .nodeLabel { font-weight: 500; }
   .mermaidTooltip { background: var(--ink) !important; color: #fff !important;
                     border-radius: 6px !important; font-size: 12px !important;
                     font-family: "IBM Plex Sans", sans-serif !important;
-                    padding: 7px 11px !important; max-width: 290px; line-height: 1.45; }
+                    padding: 7px 11px !important; max-width: 290px !important;
+                    line-height: 1.45; z-index: 10; pointer-events: none; }
   @keyframes rise { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
-  header { animation: rise .5s ease-out both; }
-  .chart  { animation: rise .5s .12s ease-out both; }
-  #detail { animation: rise .5s .22s ease-out both; }
+  header { animation: rise .35s ease-out both; }
+  .chart  { animation: rise .35s .08s ease-out both; }
+  #detail { animation: rise .35s .16s ease-out both; }
   @media (prefers-reduced-motion: reduce) { header, .chart, #detail { animation: none; } }
+  .appendix { display: none; }
+  @media print {
+    .appendix { display: block; margin-top: 24px; }
+    .appendix h2 { font-family: "Fraunces", Georgia, serif; font-size: 16px; margin: 16px 0 6px; }
+    .appendix p, .appendix li { font-size: 12px; color: var(--ink-soft); }
+    #detail { display: none; }
+    .card { break-inside: avoid; box-shadow: none; }
+    body { background-image: none; }
+    header, .chart { animation: none; }
+  }
 </style>
 </head>
 <body>
 <header>
-  <p class="kicker">Process map · AcademicPaperWriter</p>
+  <p class="kicker">Process map · <span class="name">AcademicPaperWriter</span></p>
   <h1>Deep revision of a section</h1>
-  <p class="subtitle">What happens when you ask the harness for a full re-evaluation and rewrite of one section (refine-heavy) — hover a node for a summary, click for details.</p>
-  <div class="legend">
-    <span class="chip"><span class="dot" style="background:var(--ok)"></span>Start / success</span>
-    <span class="chip"><span class="dot" style="background:var(--process)"></span>Stage</span>
-    <span class="chip"><span class="dot" style="background:var(--decision)"></span>Decision</span>
-    <span class="chip"><span class="dot" style="background:var(--stop)"></span>Stop</span>
-  </div>
+  <p class="subtitle">What happens when you ask the harness for a full re-evaluation and rewrite of one section (refine-heavy) — hover a stage for a summary; click it for details.</p>
 </header>
 <div class="layout">
   <div class="card chart">
 <pre class="mermaid">
 flowchart TD
-  S(["Start"]):::startEnd --> P1["Load the paper's context"]:::process
-  P1 --> P2["Critique the target section"]:::process
-  P2 --> D1{"Approve the direction?"}:::decision
+  accTitle: Deep revision of a section
+  accDescr: Flowchart of the refine-heavy process: load context, critique, approval gate, rewrite, integrity checks, citation and language checks, hand back.
+  S(["Start"]):::start --> P1("Load the paper's context"):::process
+  P1 --> P2("Critique the target section"):::process
+  P2 --> D1{"Approved?"}:::decision
   D1 -- "Cancel" --> E0(["Stop: nothing changed"]):::stop
-  D1 -- "Approve" --> P3["Rewrite the section"]:::process
-  P3 --> P4["Run deep integrity checks"]:::process
-  P4 --> D2{"All checks pass?"}:::decision
+  D1 -- "Approve" --> P3("Rewrite the section"):::process
+  P3 --> P4("Run deep integrity checks"):::process
+  P4 --> D2{"Checks pass?"}:::decision
   D2 -- "No" --> E1(["Stop: review issues, re-run"]):::stop
-  D2 -- "Yes" --> P5["Check citations and language"]:::process
-  P5 --> Z(["Section refined"]):::startEnd
+  D2 -- "Yes" --> P5("Check citations and language"):::process
+  P5 --> Z(["Section refined"]):::success
 
-  classDef startEnd fill:#2f9e44,stroke:#2b8a3e,color:#fff
-  classDef stop     fill:#c92a2a,stroke:#a61e1e,color:#fff
-  classDef process  fill:#3b5bdb,stroke:#2f44ad,color:#fff
-  classDef decision fill:#e8930c,stroke:#c77d0a,color:#fff
+  classDef start    fill:#fffefb,stroke:#1c1d20,stroke-width:1.5px,color:#1c1d20
+  classDef success  fill:#ebfbee,stroke:#2f9e44,stroke-width:1.5px,color:#1e6b30
+  classDef stop     fill:#fff5f5,stroke:#c92a2a,stroke-width:1.5px,stroke-dasharray:5 3,color:#9b2424
+  classDef process  fill:#edf2ff,stroke:#3b5bdb,stroke-width:1.5px,color:#22338f
+  classDef decision fill:#fff4e6,stroke:#e8930c,stroke-width:1.5px,color:#7d4f0a
 
-  click P1 call nodeDetail() "Silently reads the paper's rules, constraints, config, and research notes, then confirms which section it is about to work on before doing anything."
+  linkStyle default stroke:#8d8a82,stroke-width:2px
+  linkStyle 3,7 stroke:#c92a2a,stroke-width:1.5px,stroke-dasharray:4 3
+
+  click P1 call nodeDetail() "Silently reads the paper's rules, constraints, config, and research notes, then confirms which section it is about to work on."
   click P2 call nodeDetail() "Produces a structured critique: what works, what is broken, a proposed rewrite direction, and how invasive the rewrite would be."
   click D1 call nodeDetail() "A mandatory human gate. Nothing is rewritten until you explicitly approve the proposed direction — you can also amend it or walk away."
   click P3 call nodeDetail() "Rewrites only the approved section, keeping AI-attribution markers, flagging open questions, and citing only already-validated sources."
@@ -94,10 +118,17 @@ flowchart TD
   click P5 call nodeDetail() "Four parallel checks on citations, cross-references, and AI-sounding language; findings are recorded but do not block."
   click Z call nodeDetail() "You get a one-screen summary, a dated review report, and an automatic diff of exactly what changed."
 </pre>
+    <div class="legend">
+      <span class="chip"><span class="dot" style="background:#fffefb;border:1.5px solid var(--ink)"></span>Start</span>
+      <span class="chip"><span class="dot" style="background:var(--process)"></span>Stage</span>
+      <span class="chip"><span class="dot" style="background:var(--decision)"></span>Decision</span>
+      <span class="chip"><span class="dot" style="background:var(--ok)"></span>Success</span>
+      <span class="chip"><span class="dot" style="background:var(--stop)"></span>Stop</span>
+    </div>
   </div>
   <aside id="detail" class="card">
     <h2 id="detail-title">Details</h2>
-    <div id="detail-body"><p class="placeholder">Click a stage in the chart to see what it carries.</p></div>
+    <div id="detail-body" aria-live="polite"><p class="placeholder">Click a stage in the chart to see what it carries.</p></div>
   </aside>
 </div>
 
@@ -171,11 +202,16 @@ const DETAILS = {
     sharing with co-authors.</p>` },
 };
 
-window.nodeDetail = (id) => {
+window.nodeDetail = (id, scroll = true) => {
   const d = DETAILS[id];
   if (!d) return;
+  document.querySelector(".mermaid .node.selected")?.classList.remove("selected");
+  document.querySelector(`.mermaid .node[id^="flowchart-${id}-"]`)?.classList.add("selected");
   document.getElementById("detail-title").textContent = d.title;
   document.getElementById("detail-body").innerHTML = d.body;
+  const panel = document.getElementById("detail");
+  if (scroll && panel.getBoundingClientRect().top > window.innerHeight * 0.8)
+    panel.scrollIntoView({ behavior: "smooth", block: "start" });
 };
 
 mermaid.initialize({
@@ -183,10 +219,29 @@ mermaid.initialize({
   securityLevel: "loose",
   theme: "base",
   themeVariables: { fontFamily: "'IBM Plex Sans', system-ui, sans-serif", fontSize: "14px",
-                    lineColor: "#a8a49b", edgeLabelBackground: "#f7f6f3" },
-  flowchart: { curve: "basis", padding: 14, nodeSpacing: 42, rankSpacing: 54 },
+                    lineColor: "#8d8a82", edgeLabelBackground: "#fffefb" },
+  flowchart: { curve: "linear", padding: 14, nodeSpacing: 50, rankSpacing: 64 },
 });
 await mermaid.run();
+
+// Keyboard access: clickable nodes are tabbable buttons.
+document.querySelectorAll(".mermaid .node.clickable").forEach(n => {
+  n.setAttribute("tabindex", "0");
+  n.setAttribute("role", "button");
+  n.addEventListener("keydown", e => {
+    if (e.key === "Enter" || e.key === " ") { e.preventDefault(); nodeDetail(n.id.split("-")[1]); }
+  });
+});
+
+// Print appendix: full details in document order.
+const app = document.createElement("section");
+app.className = "appendix";
+app.innerHTML = "<h1>Stage details</h1>" +
+  Object.values(DETAILS).map(d => `<h2>${d.title}</h2>${d.body}`).join("");
+document.body.append(app);
+
+// Demonstrate the interaction: first stage pre-selected (no scroll on load).
+nodeDetail(Object.keys(DETAILS)[0], false);
 </script>
 </body>
 </html>

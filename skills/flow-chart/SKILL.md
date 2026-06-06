@@ -3,7 +3,7 @@ name: flow-chart
 description: Create audience-appropriate HTML flowcharts and process diagrams with hover tooltips and click-to-expand details. Use when users ask for a flowchart, process diagram, workflow visualization, decision tree, or a visual of how a script/system/process works. Produces purpose-level diagrams a newcomer can read in 30 seconds — not code transcriptions.
 allowed-tools: Read Write Bash
 metadata:
-  version: "0.4.0"
+  version: "0.5.0"
 ---
 
 # Flow Chart
@@ -22,7 +22,7 @@ Chart exactly what the user named. A specific component ("refine-heavy in repo X
 
 ## Labels
 
-- Process = imperative verb phrase, ≤6 words, outcome not mechanism. Decision = plain question, ≤ ~25 chars.
+- Process = imperative verb phrase, ≤6 words, outcome not mechanism. Decision = plain question, 1–2 words where possible ("Approved?", "Checks pass?") — the edge labels carry the answers, and short diamonds render ~40% smaller.
 - **Banned in labels:** variable/function names, env vars, flags, file paths, exit codes, placeholders, code. All of it goes in tooltip or detail panel.
 - Bad → good: `Record HARNESS_SHA` → `Pin tool versions for reproducibility`; `SKIP_VENV=1?` → no node at all (config toggle → detail panel).
 
@@ -33,12 +33,12 @@ Chart exactly what the user named. A specific component ("refine-heavy in repo X
 
 ## Render
 
-Copy `template.html` from this skill's directory; replace the title, kicker, subtitle, mermaid graph, click bindings, and `DETAILS` map. The template carries the design system (typography, dot-grid backdrop, palette, legend, load animation) — do not restyle per chart unless the user asks. Colors: green = start/success, red = stop, blue = process, orange = decision. Each stage gets a 1–2 sentence tooltip and a detail-panel entry carrying whatever it merged away.
+Copy `template.html` from this skill's directory; replace the title, kicker (project name in the `.name` span), subtitle, `accTitle`/`accDescr`, mermaid graph, `linkStyle` error-edge indices, click bindings, and `DETAILS` map. The template carries the design system (typography, dot-grid backdrop, tinted node palette, legend, interactions, print appendix) — do not restyle per chart unless the user asks. Node classes: `start` (outlined), `process` (indigo), `decision` (amber), `success` (green), `stop` (red, dashed). Use rounded process rects `P1("...")`, not `P1["..."]`. Each stage gets a 1–2 sentence tooltip and a detail-panel entry carrying whatever it merged away.
 
 Mermaid pitfalls: pin `mermaid@11.4.1` (never `@latest`); always quote labels (`id["..."]`) — unquoted `( ) { } # ;` are parse errors; write "and" not `&`; `end` is reserved; keep ids short (`P1`, `D2`); `securityLevel: "loose"` is required or clicks silently fail; CDN means online-only rendering (vendor the `.mjs` for offline). Never hand-place coordinates — `TD` for tall flows, `LR` for wide.
 
 ## Self-check, then output
 
-Before writing the file: every label readable by someone who never saw the source; nothing banned in labels; within budget; diamonds pass the test; branches labeled; all labels quoted.
+Before writing the file: every label readable by someone who never saw the source; nothing banned in labels; within budget; diamonds pass the test; branches labeled; all labels quoted; `linkStyle` error-edge indices match the 0-based declaration order of the error edges (count them — they are positional).
 
 Write `<kebab-slug>-flowchart.html` to the cwd (or where asked), open it in the browser, and report: path, chosen altitude, node count — plus an offer to drill down into any stage (detail is deferred, not lost).
