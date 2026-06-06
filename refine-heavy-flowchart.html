@@ -35,8 +35,8 @@
   .chart { flex: 1 1 560px; overflow-x: auto; }
   pre.mermaid { margin: 0; display: flex; justify-content: center; }
   .legend { display: flex; gap: 16px; flex-wrap: wrap;
-            border-top: 1px solid var(--border);
-            margin: 20px -24px -8px; padding: 14px 24px 0; }
+            border-bottom: 1px solid var(--border);
+            margin: -8px -24px 20px; padding: 0 24px 14px; }
   .chip { display: flex; align-items: center; gap: 7px; font-size: 12.5px; color: #5a5e66; }
   .chip .dot { width: 9px; height: 9px; border-radius: 3px; }
   #detail { flex: 0 1 330px; position: sticky; top: 40px; min-height: 180px; }
@@ -85,6 +85,13 @@
 </header>
 <div class="layout">
   <div class="card chart">
+    <div class="legend">
+      <span class="chip"><span class="dot" style="background:#fffefb;border:1.5px solid var(--ink)"></span>Start</span>
+      <span class="chip"><span class="dot" style="background:var(--process)"></span>Stage</span>
+      <span class="chip"><span class="dot" style="background:var(--decision)"></span>Decision</span>
+      <span class="chip"><span class="dot" style="background:var(--ok)"></span>Success</span>
+      <span class="chip"><span class="dot" style="background:var(--stop)"></span>Stop</span>
+    </div>
 <pre class="mermaid">
 flowchart TD
   accTitle: Deep revision of a section
@@ -118,13 +125,6 @@ flowchart TD
   click P5 call nodeDetail() "Four parallel checks on citations, cross-references, and AI-sounding language; findings are recorded but do not block."
   click Z call nodeDetail() "You get a one-screen summary, a dated review report, and an automatic diff of exactly what changed."
 </pre>
-    <div class="legend">
-      <span class="chip"><span class="dot" style="background:#fffefb;border:1.5px solid var(--ink)"></span>Start</span>
-      <span class="chip"><span class="dot" style="background:var(--process)"></span>Stage</span>
-      <span class="chip"><span class="dot" style="background:var(--decision)"></span>Decision</span>
-      <span class="chip"><span class="dot" style="background:var(--ok)"></span>Success</span>
-      <span class="chip"><span class="dot" style="background:var(--stop)"></span>Stop</span>
-    </div>
   </div>
   <aside id="detail" class="card">
     <h2 id="detail-title">Details</h2>

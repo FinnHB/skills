@@ -1,5 +1,8 @@
 # Changelog — flow-chart
 
+## 2026-06-06 (v0.5.1)
+- Legend moved to the top of the chart card (above the diagram, border-bottom separator) per user preference, reverting the v0.5.0 figure-footer placement.
+
 ## 2026-06-06 (v0.5.0)
 - Design overhaul of `template.html` after a three-agent critique (typography/editorial, diagram rendering, interaction/UX):
   - **Nodes**: saturated fills with white text (two WCAG AA failures: white-on-amber 2.4:1, white-on-green 3.4:1) replaced with tinted fills + saturated strokes + dark per-hue text (all ≥7:1). Start split from Success (outlined neutral vs green tint); Stop gets dashed border (colorblind-safe). Rounded process rects.
