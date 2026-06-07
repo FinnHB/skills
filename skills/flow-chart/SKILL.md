@@ -3,7 +3,7 @@ name: flow-chart
 description: Create HTML flowcharts and process diagrams with hover tooltips and click-to-expand details. Use when users ask for a flowchart, process diagram, workflow visualization, decision tree, or a visual of how a script/system/process works. Output is purpose-level — readable by a newcomer in 30 seconds, not a code transcription. An explicit "deep" request adds linked per-stage drill-down charts.
 allowed-tools: Bash, Read, Write, Edit
 metadata:
-  version: "0.9.0"
+  version: "0.9.1"
 ---
 
 # Flow Chart

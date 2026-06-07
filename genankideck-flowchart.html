@@ -1,22 +1,58 @@
 <!DOCTYPE html>
 <!-- flow-chart skill template — "engineering paper" design system.
      Fill ONLY these slots; everything else stays byte-identical:
-       1. <title>
-       2. kicker project name (the .name span)
+       1. <title> — child charts: "Stage · Parent · Process map"
+       2. kicker project name (the .name span; child charts: breadcrumb,
+          see CHILD CHARTS below)
        3. h1 + subtitle
        4. accTitle / accDescr
-       5. the mermaid graph — then rewrite the %% edge index map comment
-          (own line only — trailing comments are a parse error)
-       6. linkStyle indices — 0-based over ALL edges in declaration order,
-          read from the edge index map; DELETE the red linkStyle line if
-          the chart has no error edges
-       7. click bindings — one per process/decision/success node (never
-          start/stop)
+       5. the mermaid graph. Syntax: quote every node AND edge label —
+          copy the exact arrow and label forms from the sample graph
+          (P1("..."), edge labels like -- "Yes"; a literal two-dash
+          arrow here would close this HTML comment). No double quotes
+          inside any quoted string (labels, edge labels, click tooltips)
+          — rephrase or use #quot;. Write "and" not &, and &lt; for a
+          literal <. Edge arrows are plain ASCII, never unicode. Ids match
+          [A-Z][A-Za-z0-9]* — no hyphens/underscores, "end" reserved
+          (the keyboard handler parses DOM ids). Swimlanes:
+          subgraph SG1["Lane name"] ... end (quoted title; node ids stay
+          global). Then rewrite the %% edge index map comment — own line
+          only, trailing comments are a parse error — listing every edge
+          0-based in declaration order, error edges marked (error), loop
+          back-edges (loop); subgraph-internal edges count.
+       6. linkStyle indices — read from the edge index map; they index
+          ALL edges, not just error ones, and one out-of-range index
+          aborts the whole render. No error edges → DELETE the red
+          linkStyle line. Loop back-edges get their own dashed-amber line:
+          linkStyle <i> stroke:#e8930c,stroke-width:1.5px,stroke-dasharray:4 3
+       7. click bindings — one per process/decision/success node, never
+          start/stop. Sole exception: a child chart's start node IS the
+          up-link: click S href "<parent-file>" "Go up one level:
+          <parent name>" _self — explicit _self (mermaid's default
+          target is _blank); the href makes S clickable, so the
+          integrity check requires its DETAILS entry.
        8. DETAILS map — same case-sensitive keys as the click bindings;
-          bodies are JS template literals: no backticks or ${ inside
-       9. legend — delete chips for node classes the chart doesn't use
+          bodies are JS template literals: no backticks or ${ inside —
+          use <code> tags and HTML entities. Keep keys in node
+          declaration order; the FIRST entry is pre-selected on load
+          (child charts: S first, naming the parent).
+       9. legend — delete chips for node classes the chart doesn't use;
+          ADD these exact chips when their glyph/edge appears:
+          <span class="chip">⤵&nbsp;&nbsp;stage has its own chart</span>
+          <span class="chip">↻&nbsp;&nbsp;improves its output internally</span>
+          <span class="chip">↰&nbsp;&nbsp;start links to the parent chart</span>
+          <span class="chip"><span class="dot" style="background:#fff4e6;border:1.5px dashed var(--decision)"></span>loop back</span>
+     CHILD CHARTS (drill-downs, SKILL.md §2.3/§7) — slot patterns:
+       title:    Stage · Parent · Process map  (h1 stays the stage name)
+       kicker:   Process map · <span class="name"><a href="<parent-file>"
+                 style="color:var(--accent)">parent-slug</a> › stage-slug</span>
+       subtitle: Drill-down into one stage of
+                 <a href="<parent-file>">the parent process</a>: …
+       start:    ↰-prefixed label + slot 7's up-link + slot 8's S-first entry
      CDN note: mermaid + fonts need internet at view time; fonts degrade to
-     the system stack offline. -->
+     the system stack offline. Fully offline: vendor dist/mermaid.min.js
+     (UMD, single file) and swap to a classic script — the ESM build
+     lazy-loads chunks and cannot be vendored as one file. -->
 <html lang="en">
 <head>
 <meta charset="utf-8">
@@ -100,7 +136,7 @@
 <header>
   <p class="kicker">Process map · <span class="name">GenAnkiDeck_Claude</span></p>
   <h1>Building an enriched flashcard deck</h1>
-  <p class="subtitle">How a configured word list becomes an enriched, illustrated flashcard deck you review daily — hover a stage for a summary; click it for details.</p>
+  <p class="subtitle">How a Chinese word list becomes an enriched, illustrated flashcard deck the learner reviews daily in the terminal — hover a stage for a summary; click it for details.</p>
 </header>
 <div class="layout">
   <div class="card chart">
@@ -108,17 +144,21 @@
       <span class="chip"><span class="dot" style="background:#fffefb;border:1.5px solid var(--ink)"></span>Start</span>
       <span class="chip"><span class="dot" style="background:var(--process)"></span>Stage</span>
       <span class="chip"><span class="dot" style="background:var(--ok)"></span>Success</span>
+      <span class="chip">↻&nbsp;&nbsp;improves its output internally</span>
+      <span class="chip"><span class="dot" style="background:#fff4e6;border:1.5px dashed var(--decision)"></span>loop back</span>
     </div>
 <pre class="mermaid">
 flowchart TD
   accTitle: Building an enriched flashcard deck
-  accDescr: Pipeline flowchart: set up the deck database, enrich every word, generate and validate example sentences, illustrate cards with generated images, review daily with spaced repetition, vocabulary retained.
+  accDescr: Pipeline flowchart: set up the deck database, enrich every word, generate and validate example sentences, illustrate cards with generated images, review due cards daily, schedule each card with spaced repetition looping back to the next session, vocabulary retained.
   S(["New word list"]):::start --> P1("Set up the deck database"):::process
   P1 --> P2("Enrich every word"):::process
-  P2 --> P3("Generate and validate example sentences"):::process
-  P3 --> P4("Illustrate cards with generated images"):::process
-  P4 --> P5("Review daily with spaced repetition"):::process
-  P5 --> Z(["Vocabulary retained"]):::success
+  P2 --> P3("Generate and validate sentences ↻"):::process
+  P3 --> P4("Illustrate cards with images ↻"):::process
+  P4 --> P5("Review due cards daily"):::process
+  P5 --> P6("Schedule each card ahead"):::process
+  P6 -- "Next session" --> P5
+  P6 -- "Over time" --> Z(["Vocabulary retained"]):::success
 
   classDef start    fill:#fffefb,stroke:#1c1d20,stroke-width:1.5px,color:#1c1d20
   classDef success  fill:#ebfbee,stroke:#2f9e44,stroke-width:1.5px,color:#1e6b30
@@ -127,14 +167,16 @@ flowchart TD
   classDef decision fill:#fff4e6,stroke:#e8930c,stroke-width:1.5px,color:#7d4f0a
 
   linkStyle default stroke:#8d8a82,stroke-width:2px
-  %% edge index map: 0 S->P1, 1 P1->P2, 2 P2->P3, 3 P3->P4, 4 P4->P5, 5 P5->Z (no error edges; red linkStyle line deleted)
+  %% edge index map: 0 S->P1, 1 P1->P2, 2 P2->P3, 3 P3->P4, 4 P4->P5, 5 P5->P6, 6 P6->P5 (loop), 7 P6->Z
+  linkStyle 6 stroke:#e8930c,stroke-width:1.5px,stroke-dasharray:4 3
 
-  click P1 call nodeDetail() "First run seeds the database from the word list, computes semantic embeddings, and resolves which earlier decks count as already known."
-  click P2 call nodeDetail() "Adds pinyin, a definition, and a difficulty score to every card, generated in parallel and cached so re-runs are free."
-  click P3 call nodeDetail() "Writes one example sentence per word using only vocabulary the learner already knows, then validates it deterministically with an LLM remediation fallback."
-  click P4 call nodeDetail() "Two-tier image pipeline: a scene description is written first, then rendered and compressed. Identical prompts are never rendered twice."
-  click P5 call nodeDetail() "Terminal review sessions scheduled by a spaced-repetition algorithm, with the queue sorted by how close each card is to being forgotten."
-  click Z call nodeDetail() "The database is the single source of truth; a report tool aggregates telemetry into per-run summaries."
+  click P1 call nodeDetail() "First run seeds the database from the word list, computes embeddings, and resolves which earlier decks already count as known."
+  click P2 call nodeDetail() "Adds pinyin, a definition, and a difficulty score to every card — generated in parallel and cached, so re-runs are free."
+  click P3 call nodeDetail() "Writes one example sentence per word using only vocabulary the learner already knows, then checks it deterministically; failing sentences are repaired automatically."
+  click P4 call nodeDetail() "A scene description is written first, then rendered and compressed; weak prompts improve themselves before any rendering is paid for."
+  click P5 call nodeDetail() "Terminal review session with the queue sorted by how close each card is to being forgotten."
+  click P6 call nodeDetail() "Each grade updates the card's memory model and books its next review date — tomorrow's session picks up whatever is due."
+  click Z call nodeDetail() "Retention builds across sessions; a report tool turns telemetry logs into per-run quality metrics."
 </pre>
   </div>
   <aside id="detail" class="card">
@@ -147,56 +189,13 @@ flowchart TD
 import mermaid from "https://cdn.jsdelivr.net/npm/mermaid@11.4.1/dist/mermaid.esm.min.mjs";
 
 const DETAILS = {
-  P1: { title: "Set up the deck database", body: `
-    <p>Word lists are declared in <code>input_files.json</code> (name, language, words,
-    image style, prerequisites). On first run, <code>generate_word_data.py</code>:</p>
-    <ul>
-      <li>Seeds the SQLite database — the single source of truth (no JSON export step).</li>
-      <li>Computes semantic embeddings for the vocabulary.</li>
-      <li>Resolves DAG prerequisites transitively — e.g. HSK 2 treats all of HSK 1
-          as already known.</li>
-    </ul>` },
-  P2: { title: "Enrich every word", body: `
-    <ul>
-      <li>Per card: pinyin, definition, example sentence, difficulty score.</li>
-      <li>OpenAI chat completions, 10 concurrent workers.</li>
-      <li>Everything is cached in <code>Data/llm_cache.db</code> — re-runs are free;
-          <code>--overwrite</code> regenerates, <code>--limit</code> smoke-tests a subset.</li>
-    </ul>` },
-  P3: { title: "Generate and validate example sentences", body: `
-    <p>Sentences follow the Krashen i+1 hypothesis: only words the learner already
-    knows, plus the one new target word (enforced via semantic embeddings).</p>
-    <ul>
-      <li><b>Validation</b> — deterministic jieba-based coverage check on every sentence.</li>
-      <li><b>Remediation</b> — failing sentences go to an LLM judge with a rewrite
-          fallback before being accepted.</li>
-    </ul>` },
-  P4: { title: "Illustrate cards with generated images", body: `
-    <p>Two-tier pipeline, 5 configurable workers:</p>
-    <ol>
-      <li>GPT-4o-mini writes a scene description in the deck's configured style.</li>
-      <li><code>gpt-image-1</code> renders 1024×1024, compressed to WebP
-          (<code>--no-compress</code> keeps PNG).</li>
-    </ol>
-    <p>Storage is content-addressed — filenames derive from a hash of the prompt, flat
-    under <code>Media/Images/</code>, deduplicated across decks; renders are cached.</p>` },
-  P5: { title: "Review daily with spaced repetition", body: `
-    <ul>
-      <li>FSRS-6 scheduling backed by SQLite; terminal review sessions.</li>
-      <li>Queue sorted by retrievability — cards closest to being forgotten come first.</li>
-      <li>New-card gating: new vocabulary is back-loaded when the review backlog
-          exceeds 1.5× the daily cap.</li>
-      <li>Retention presets: <code>easy</code> (0.82, ~25% fewer reviews) to
-          <code>intensive</code> (0.95, maximum retention).</li>
-    </ul>` },
-  Z: { title: "Vocabulary retained", body: `
-    <p>The deck lives entirely in SQLite and keeps improving as you review.</p>
-    <ul>
-      <li><code>report.py</code> aggregates JSONL telemetry into per-run summary tables
-          (markdown or CSV).</li>
-      <li>Adding the next level is one command — prerequisites mean it builds on
-          everything already learned.</li>
-    </ul>` },
+  P1: { title: "Set up the deck database", body: "<ul><li>Word lists are defined in <code>input_files.json</code> (name, words, image style, prerequisite decks).</li><li>First run auto-seeds the SQLite database and computes a semantic embedding per word (<code>text-embedding-3-small</code>).</li><li>Prerequisite decks resolve transitively — HSK 2 treats every HSK 1 word as already known, HSK 3 inherits both.</li><li>The database is the single source of truth; there is no JSON export step.</li></ul>" },
+  P2: { title: "Enrich every word", body: "<ul><li>GPT generates pinyin, an English definition, and a difficulty score for each card (<code>generate_word_data.py</code>).</li><li>10 parallel workers; every completion is cached in <code>Data/llm_cache.db</code>, so interrupted or repeated runs cost nothing.</li><li><code>--limit</code> smoke-tests on a few words; <code>--overwrite</code> regenerates a finished deck.</li></ul>" },
+  P3: { title: "Generate and validate sentences ↻", body: "<ul><li><strong>↻ self-correction:</strong> a sentence that fails validation goes to an LLM judge that names each violation, then a remediation model returns a corrected sentence — automatic and bounded, no user action.</li><li>Each example sentence may use only words the learner already knows plus the one target word (the i+1 principle).</li><li>Validation is deterministic first: jieba segmentation checks every word against the known lists and a 283-word function-word whitelist.</li></ul>" },
+  P4: { title: "Illustrate cards with images ↻", body: "<ul><li><strong>↻ self-correction:</strong> scene prompts that fail the length gate or the LLM judge enter an automatic refine/improve loop until accepted — before any image is rendered.</li><li>Two tiers: GPT-4o-mini writes a scene description, then <code>gpt-image-1</code> renders it at 1024×1024 and the result is compressed to WebP.</li><li>Images are content-addressed by prompt hash — identical prompts are never rendered twice, and decks share images.</li></ul>" },
+  P5: { title: "Review due cards daily", body: "<ul><li>Terminal session (<code>review.py</code>); the queue is sorted by retrievability, so the cards closest to being forgotten come first.</li><li>New cards are gated: when the review backlog exceeds 1.5× the daily cap, new vocabulary waits — burnout protection.</li><li>Retention presets trade workload for recall (<code>--retention easy</code> ≈ 25% fewer reviews; <code>intensive</code> for maximum retention).</li></ul>" },
+  P6: { title: "Schedule each card ahead", body: "<ul><li>Every grade updates the card's FSRS-6 memory model and writes its next due date to SQLite.</li><li>The amber edge is the daily cycle: each session reschedules what it touched, and the next session picks up whatever has come due.</li></ul>" },
+  Z: { title: "Vocabulary retained", body: "<ul><li>Retention is the accumulated effect of the review loop — there is no final export; the deck lives in the database.</li><li><code>report.py</code> aggregates the generation telemetry (JSONL logs) into per-run quality metrics.</li></ul>" },
 };
 
 window.nodeDetail = (id, scroll = true) => {
@@ -244,7 +243,7 @@ app.innerHTML = "<h2>Stage details</h2>" +
   Object.values(DETAILS).map(d => `<h3>${d.title}</h3>${d.body}`).join("");
 document.body.append(app);
 
-// Demonstrate the interaction: first stage pre-selected (no scroll on load).
+// Demonstrate the interaction: first DETAILS entry pre-selected (no scroll on load).
 nodeDetail(Object.keys(DETAILS)[0], false);
 </script>
 </body>

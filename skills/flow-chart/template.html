@@ -6,11 +6,13 @@
           see CHILD CHARTS below)
        3. h1 + subtitle
        4. accTitle / accDescr
-       5. the mermaid graph. Syntax: quote every node AND edge label
-          (P1("..."), -- "Yes" -->); no double quotes inside any quoted
-          string (labels, edge labels, click tooltips) — rephrase or use
-          #quot;. Write "and" not &, and &lt; for a literal <. Edge
-          operators are ASCII (-->), never unicode arrows. Ids match
+       5. the mermaid graph. Syntax: quote every node AND edge label —
+          copy the exact arrow and label forms from the sample graph
+          (P1("..."), edge labels like -- "Yes"; a literal two-dash
+          arrow here would close this HTML comment). No double quotes
+          inside any quoted string (labels, edge labels, click tooltips)
+          — rephrase or use #quot;. Write "and" not &, and &lt; for a
+          literal <. Edge arrows are plain ASCII, never unicode. Ids match
           [A-Z][A-Za-z0-9]* — no hyphens/underscores, "end" reserved
           (the keyboard handler parses DOM ids). Swimlanes:
           subgraph SG1["Lane name"] ... end (quoted title; node ids stay
