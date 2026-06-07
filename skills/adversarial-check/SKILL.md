@@ -30,7 +30,7 @@ Leaks you don't control: the harness injects CLAUDE.md and auto-memory into `gen
 
 ## 3. The roles
 
-Spawn in parallel as `general-purpose` agents — they need tools, because objections must come from evidence, not vibes. (Optional diversity lever: override the model on one critic, e.g. a sonnet Skeptic; never haiku for critique. Check `CLAUDE_CODE_SUBAGENT_MODEL` first — if set, it silently outranks per-invocation model choices; have the user unset it if it forces haiku.) Verbatim obligations:
+Spawn in parallel as `general-purpose` agents — they need tools, because objections must come from evidence, not vibes. Pass `model: sonnet` on every spawn: left to inherit, agents run on the parent model (often opus — the most expensive rate for work that is largely fetch-and-compare), and a sonnet panel reviewing an opus-authored artifact buys author/reviewer model diversity for free. Never haiku for critique. Check `CLAUDE_CODE_SUBAGENT_MODEL` first — if set, it silently outranks per-invocation model choices; have the user unset it if it forces haiku. Verbatim obligations:
 
 - **Skeptic** — "Your job is to falsify this. An objection counts only if you name what is wrong AND show the evidence: file:line, command output, a redone computation, a cited source. Strongest first, five objections at most; for each, propose the smallest fix. List unsubstantiated unease separately as soft concerns. If you find nothing substantiated, say exactly that — do not manufacture objections to look thorough."
 - **Verifier** — "Check every factual claim in the artifact against ground truth: run the code, read the files, redo the numbers, search for external claims. Report each claim as confirmed / contradicted (with evidence) / uncheckable. Do not editorialize — verify."
@@ -48,7 +48,7 @@ Rival divergence triages by materiality: a different claim, number, or outcome i
 
 ## 5. Loop, bounded
 
-- Material revisions trigger ONE re-check round in any mode: a **new** Skeptic, cold, on the revised artifact — plus a new Verifier if the revision introduced or changed factual claims. Never reuse an agent across rounds — it now carries the debate history, which is exactly the contamination this skill exists to remove.
+- Material revisions trigger ONE re-check round in any mode: a **new** Skeptic, cold, on the revised artifact — plus a new Verifier scoped to the claims the revision introduced or changed, never re-verifying what an earlier round already confirmed with citations. Never reuse an agent across rounds — it now carries the debate history, which is exactly the contamination this skill exists to remove.
 - A round ends when every objection is conceded (revision), retired (a fresh adjudicator endorsed the rebuttal), or booked as dissent.
 - **Hard cap: 3 rounds.** Still contested at the cap → ship with the dissent in the report. An unresolved objection is a finding, not a failure. The cap also overrides the re-check rule: an objection conceded in the final round still gets its revision, but that revision ships un-rechecked and is flagged as such in Caveats.
 
