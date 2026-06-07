@@ -1,22 +1,56 @@
 <!DOCTYPE html>
 <!-- flow-chart skill template — "engineering paper" design system.
      Fill ONLY these slots; everything else stays byte-identical:
-       1. <title>
-       2. kicker project name (the .name span)
+       1. <title> — child charts: "Stage · Parent · Process map"
+       2. kicker project name (the .name span; child charts: breadcrumb,
+          see CHILD CHARTS below)
        3. h1 + subtitle
        4. accTitle / accDescr
-       5. the mermaid graph — then rewrite the %% edge index map comment
-          (own line only — trailing comments are a parse error)
-       6. linkStyle indices — 0-based over ALL edges in declaration order,
-          read from the edge index map; DELETE the red linkStyle line if
-          the chart has no error edges
-       7. click bindings — one per process/decision/success node (never
-          start/stop)
+       5. the mermaid graph. Syntax: quote every node AND edge label
+          (P1("..."), -- "Yes" -->); no double quotes inside any quoted
+          string (labels, edge labels, click tooltips) — rephrase or use
+          #quot;. Write "and" not &, and &lt; for a literal <. Edge
+          operators are ASCII (-->), never unicode arrows. Ids match
+          [A-Z][A-Za-z0-9]* — no hyphens/underscores, "end" reserved
+          (the keyboard handler parses DOM ids). Swimlanes:
+          subgraph SG1["Lane name"] ... end (quoted title; node ids stay
+          global). Then rewrite the %% edge index map comment — own line
+          only, trailing comments are a parse error — listing every edge
+          0-based in declaration order, error edges marked (error), loop
+          back-edges (loop); subgraph-internal edges count.
+       6. linkStyle indices — read from the edge index map; they index
+          ALL edges, not just error ones, and one out-of-range index
+          aborts the whole render. No error edges → DELETE the red
+          linkStyle line. Loop back-edges get their own dashed-amber line:
+          linkStyle <i> stroke:#e8930c,stroke-width:1.5px,stroke-dasharray:4 3
+       7. click bindings — one per process/decision/success node, never
+          start/stop. Sole exception: a child chart's start node IS the
+          up-link: click S href "<parent-file>" "Go up one level:
+          <parent name>" _self — explicit _self (mermaid's default
+          target is _blank); the href makes S clickable, so the
+          integrity check requires its DETAILS entry.
        8. DETAILS map — same case-sensitive keys as the click bindings;
-          bodies are JS template literals: no backticks or ${ inside
-       9. legend — delete chips for node classes the chart doesn't use
+          bodies are JS template literals: no backticks or ${ inside —
+          use <code> tags and HTML entities. Keep keys in node
+          declaration order; the FIRST entry is pre-selected on load
+          (child charts: S first, naming the parent).
+       9. legend — delete chips for node classes the chart doesn't use;
+          ADD these exact chips when their glyph/edge appears:
+          <span class="chip">⤵&nbsp;&nbsp;stage has its own chart</span>
+          <span class="chip">↻&nbsp;&nbsp;improves its output internally</span>
+          <span class="chip">↰&nbsp;&nbsp;start links to the parent chart</span>
+          <span class="chip"><span class="dot" style="background:#fff4e6;border:1.5px dashed var(--decision)"></span>loop back</span>
+     CHILD CHARTS (drill-downs, SKILL.md §2.3/§7) — slot patterns:
+       title:    Stage · Parent · Process map  (h1 stays the stage name)
+       kicker:   Process map · <span class="name"><a href="<parent-file>"
+                 style="color:var(--accent)">parent-slug</a> › stage-slug</span>
+       subtitle: Drill-down into one stage of
+                 <a href="<parent-file>">the parent process</a>: …
+       start:    ↰-prefixed label + slot 7's up-link + slot 8's S-first entry
      CDN note: mermaid + fonts need internet at view time; fonts degrade to
-     the system stack offline. -->
+     the system stack offline. Fully offline: vendor dist/mermaid.min.js
+     (UMD, single file) and swap to a classic script — the ESM build
+     lazy-loads chunks and cannot be vendored as one file. -->
 <html lang="en">
 <head>
 <meta charset="utf-8">
@@ -129,11 +163,12 @@ flowchart TD
 
   linkStyle default stroke:#8d8a82,stroke-width:2px
   %% edge index map: 0 S->D1, 1 D1->E1 (error), 2 D1->P1, 3 P1->P2, 4 P2->Z
-  %% DELETE the red linkStyle line below if the chart has no error edges
   linkStyle 1 stroke:#c92a2a,stroke-width:1.5px,stroke-dasharray:4 3
 
+  click D1 call nodeDetail() "1-2 sentence tooltip"
   click P1 call nodeDetail() "1-2 sentence tooltip"
   click P2 call nodeDetail() "1-2 sentence tooltip"
+  click Z call nodeDetail() "1-2 sentence tooltip"
 </pre>
   </div>
   <aside id="detail" class="card">
@@ -146,8 +181,10 @@ flowchart TD
 import mermaid from "https://cdn.jsdelivr.net/npm/mermaid@11.4.1/dist/mermaid.esm.min.mjs";
 
 const DETAILS = {
+  D1: { title: "Prerequisites met?", body: "<p>The failure causes that route a reader to the Stop node live here.</p>" },
   P1: { title: "First stage", body: "<ul><li>implementation specifics live here</li></ul>" },
   P2: { title: "Second stage", body: "<p>…</p>" },
+  Z: { title: "Done", body: "<p>What success leaves behind — outputs and where they land.</p>" },
 };
 
 window.nodeDetail = (id, scroll = true) => {
@@ -195,7 +232,7 @@ app.innerHTML = "<h2>Stage details</h2>" +
   Object.values(DETAILS).map(d => `<h3>${d.title}</h3>${d.body}`).join("");
 document.body.append(app);
 
-// Demonstrate the interaction: first stage pre-selected (no scroll on load).
+// Demonstrate the interaction: first DETAILS entry pre-selected (no scroll on load).
 nodeDetail(Object.keys(DETAILS)[0], false);
 </script>
 </body>
