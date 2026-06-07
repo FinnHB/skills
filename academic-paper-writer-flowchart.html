@@ -1,63 +1,157 @@
 <!DOCTYPE html>
+<!-- flow-chart skill template — "engineering paper" design system.
+     Fill ONLY these slots; everything else stays byte-identical:
+       1. <title>
+       2. kicker project name (the .name span)
+       3. h1 + subtitle
+       4. accTitle / accDescr
+       5. the mermaid graph — then rewrite the %% edge index map comment
+          (own line only — trailing comments are a parse error)
+       6. linkStyle indices — 0-based over ALL edges in declaration order,
+          read from the edge index map; DELETE the red linkStyle line if
+          the chart has no error edges
+       7. click bindings — one per process/decision/success node (never
+          start/stop)
+       8. DETAILS map — same case-sensitive keys as the click bindings;
+          bodies are JS template literals: no backticks or ${ inside
+       9. legend — delete chips for node classes the chart doesn't use
+     CDN note: mermaid + fonts need internet at view time; fonts degrade to
+     the system stack offline. -->
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<title>AcademicPaperWriter Flowchart</title>
+<title>AcademicPaperWriter · Process map</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400&display=swap" rel="stylesheet">
 <style>
-  :root { --bg:#f6f8fb; --card:#fff; --border:#e3e8f0; --text:#1a2233; --muted:#5b6577; }
-  body { font-family: system-ui, sans-serif; background: var(--bg); color: var(--text);
-         margin: 0; padding: 32px; }
-  header h1 { font-size: 22px; margin: 0 0 4px; }
-  header p  { color: var(--muted); margin: 0 0 20px; font-size: 14px; }
-  .card { background: var(--card); border: 1px solid var(--border); border-radius: 12px;
-          padding: 20px; box-shadow: 0 1px 3px rgb(16 24 40 / .06); }
-  .layout { display: flex; gap: 20px; align-items: flex-start; flex-wrap: wrap; }
-  .chart { flex: 1 1 560px; }
-  #detail { flex: 0 1 320px; position: sticky; top: 24px; }
-  #detail h2 { font-size: 15px; margin: 0 0 8px; }
-  #detail p, #detail li { font-size: 13px; color: var(--muted); line-height: 1.5; }
-  #detail[hidden] { display: none; }
-  .mermaid .node { cursor: pointer; }
-  .mermaidTooltip { background: #1a2233 !important; color: #fff !important;
+  :root {
+    --paper:#f7f6f3; --card:#fffefb; --border:#e7e4dd; --ink:#1c1d20;
+    --ink-soft:#3a3d42; --muted:#6b6f76; --accent:#3b5bdb;
+    --code-bg:#f1efe9; --code-border:#e3e0d6;
+    --ok:#2f9e44; --stop:#c92a2a; --process:#3b5bdb; --decision:#e8930c;
+  }
+  body {
+    font-family: "IBM Plex Sans", system-ui, sans-serif;
+    background-color: var(--paper);
+    background-image: radial-gradient(circle, rgba(28,29,32,.06) .8px, transparent 1.6px);
+    background-size: 16px 16px;
+    color: var(--ink); line-height: 1.55;
+    margin: 0; padding: 40px clamp(20px, 4vw, 56px);
+  }
+  .kicker { font-size: 12px; font-weight: 600; letter-spacing: .14em;
+            text-transform: uppercase; color: var(--muted); margin: 0 0 8px; }
+  .kicker .name { text-transform: none; font-family: "IBM Plex Mono", monospace;
+                  font-weight: 400; letter-spacing: .02em; }
+  h1 { font-family: "Fraunces", Georgia, serif; font-weight: 600;
+       font-size: clamp(26px, 3.2vw, 34px); line-height: 1.15;
+       text-wrap: balance; margin: 0 0 8px; letter-spacing: -.015em; }
+  .subtitle { color: var(--muted); margin: 0 0 24px; font-size: 15px;
+              line-height: 1.5; max-width: 70ch; }
+  .card { background: var(--card); border: 1px solid var(--border); border-radius: 10px;
+          padding: 24px; box-shadow: 0 1px 2px rgb(28 29 32 / .05), 0 2px 8px rgb(28 29 32 / .04); }
+  .layout { display: flex; gap: 24px; align-items: flex-start; flex-wrap: wrap; }
+  .chart { flex: 1 1 560px; overflow-x: auto; }
+  pre.mermaid { margin: 0; display: flex; justify-content: center; }
+  .legend { display: flex; gap: 16px; flex-wrap: wrap;
+            border-bottom: 1px solid var(--border);
+            margin: -8px -24px 20px; padding: 0 24px 14px; }
+  .chip { display: flex; align-items: center; gap: 7px; font-size: 12.5px; color: #5a5e66; }
+  .chip .dot { width: 9px; height: 9px; border-radius: 3px; }
+  #detail { flex: 0 1 330px; position: sticky; top: 40px; min-height: 180px; }
+  #detail h2 { font-family: "Fraunces", Georgia, serif; font-weight: 600;
+               font-size: 18px; margin: 0 0 10px; }
+  #detail p, #detail li { font-size: 14px; color: var(--ink-soft); line-height: 1.55; }
+  #detail ul, #detail ol { padding-left: 18px; }
+  #detail .placeholder { color: #9a9da3; }
+  code { font-family: "IBM Plex Mono", ui-monospace, monospace; font-size: .85em;
+         background: var(--code-bg); border: 1px solid var(--code-border);
+         border-radius: 4px; padding: .08em .35em; color: var(--ink); }
+  .mermaid .node { cursor: default; }
+  .mermaid .node.clickable { cursor: pointer; transition: filter .15s ease; }
+  .mermaid .node.clickable:hover { filter: brightness(.97) drop-shadow(0 2px 5px rgb(28 29 32 / .18)); }
+  .mermaid .node.selected rect,
+  .mermaid .node.selected polygon { stroke: var(--ink); stroke-width: 2.5px; }
+  .mermaid .node:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
+  .mermaid .nodeLabel { font-weight: 500; }
+  .mermaidTooltip { background: var(--ink) !important; color: #fff !important;
                     border-radius: 6px !important; font-size: 12px !important;
-                    padding: 6px 10px !important; max-width: 280px; }
+                    font-family: "IBM Plex Sans", sans-serif !important;
+                    padding: 7px 11px !important; max-width: 290px !important;
+                    line-height: 1.45; z-index: 10; pointer-events: none; }
+  @keyframes rise { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
+  header { animation: rise .35s ease-out both; }
+  .chart  { animation: rise .35s .08s ease-out both; }
+  #detail { animation: rise .35s .16s ease-out both; }
+  @media (prefers-reduced-motion: reduce) { header, .chart, #detail { animation: none; } }
+  .appendix { display: none; }
+  @media print {
+    .appendix { display: block; margin-top: 24px; }
+    .appendix h2 { font-family: "Fraunces", Georgia, serif; font-size: 18px; margin: 0 0 8px; }
+    .appendix h3 { font-family: "Fraunces", Georgia, serif; font-size: 15px; margin: 16px 0 6px; }
+    .appendix p, .appendix li { font-size: 12px; color: var(--ink-soft); }
+    #detail { display: none; }
+    .card { break-inside: avoid; box-shadow: none; }
+    body { background-image: none; }
+    header, .chart { animation: none; }
+  }
 </style>
 </head>
 <body>
 <header>
+  <p class="kicker">Process map · <span class="name">AcademicPaperWriter</span></p>
   <h1>Writing a paper with AcademicPaperWriter</h1>
-  <p>How an economics paper goes from idea (or an existing draft) to a signed-off, verifiable manuscript — click a node for details, hover for a summary.</p>
+  <p class="subtitle">How an economics paper goes from idea (or an existing draft) to a signed-off, verifiable manuscript — hover a stage for a summary; click it for details.</p>
 </header>
 <div class="layout">
   <div class="card chart">
+    <div class="legend">
+      <span class="chip"><span class="dot" style="background:#fffefb;border:1.5px solid var(--ink)"></span>Start</span>
+      <span class="chip"><span class="dot" style="background:var(--process)"></span>Stage</span>
+      <span class="chip"><span class="dot" style="background:var(--decision)"></span>Decision</span>
+      <span class="chip"><span class="dot" style="background:var(--ok)"></span>Success</span>
+      <span class="chip"><span class="dot" style="background:#fff4e6;border:1.5px dashed var(--decision)"></span>loop back</span>
+      <span class="chip">⤵&nbsp;&nbsp;stage has its own chart</span>
+    </div>
 <pre class="mermaid">
 flowchart TD
-  S(["Start"]):::startEnd --> P1["Set up the paper repository"]:::process
+  accTitle: Writing a paper with AcademicPaperWriter
+  accDescr: A paper repository is set up, then either a new idea is developed and drafted or an existing draft is imported; the manuscript is refined, verified, and cited in a loop until ready, then finalized and exported.
+  S(["Start a new paper"]):::start --> P1("Set up the paper repository ⤵"):::process
   P1 --> D1{"Already have a draft?"}:::decision
-  D1 -- "No" --> P2["Develop and scope the research idea"]:::process
-  P2 --> P3["Write the first full draft"]:::process
-  D1 -- "Yes" --> P4["Import the existing draft"]:::process
-  P3 --> P5["Refine, verify, and cite iteratively"]:::process
+  D1 -- "No" --> P2("Develop and scope the research idea"):::process
+  P2 --> P3("Write the first full draft"):::process
+  D1 -- "Yes" --> P4("Import the existing draft"):::process
+  P3 --> P5("Refine, verify, and cite"):::process
   P4 --> P5
-  P5 --> P6["Finalize and export for co-authors"]:::process
-  P6 --> Z(["Paper ready"]):::startEnd
+  P5 --> D2{"Ready to finalize?"}:::decision
+  D2 -- "Keep refining" --> P5
+  D2 -- "Ready" --> P6("Finalize and export for co-authors"):::process
+  P6 --> Z(["Paper ready"]):::success
 
-  classDef startEnd fill:#2f855a,stroke:#276749,color:#fff
-  classDef process  fill:#3182ce,stroke:#2b6cb0,color:#fff
-  classDef decision fill:#dd8a12,stroke:#b7791f,color:#fff
+  classDef start    fill:#fffefb,stroke:#1c1d20,stroke-width:1.5px,color:#1c1d20
+  classDef success  fill:#ebfbee,stroke:#2f9e44,stroke-width:1.5px,color:#1e6b30
+  classDef stop     fill:#fff5f5,stroke:#c92a2a,stroke-width:1.5px,stroke-dasharray:5 3,color:#9b2424
+  classDef process  fill:#edf2ff,stroke:#3b5bdb,stroke-width:1.5px,color:#22338f
+  classDef decision fill:#fff4e6,stroke:#e8930c,stroke-width:1.5px,color:#7d4f0a
+
+  linkStyle default stroke:#8d8a82,stroke-width:2px
+  %% edge index map: 0 S->P1, 1 P1->D1, 2 D1->P2, 3 P2->P3, 4 D1->P4, 5 P3->P5, 6 P4->P5, 7 P5->D2, 8 D2->P5 (loop), 9 D2->P6, 10 P6->Z
+  linkStyle 8 stroke:#e8930c,stroke-width:1.5px,stroke-dasharray:4 3
 
   click P1 call nodeDetail() "One paper = one self-contained git repo. A bootstrap command copies the whole writing harness in, so the paper never depends on this source repo."
   click D1 call nodeDetail() "Two entry tracks: start from scratch, or onboard a draft you already have."
   click P2 call nodeDetail() "Find, validate, and stress-test the research question, then turn it into a concrete research plan."
   click P3 call nodeDetail() "Produce the first complete manuscript from the research plan. LaTeX is the canonical source of truth from here on."
   click P4 call nodeDetail() "Import a Word draft, extract its citations, and flag every spot that needs human rescue."
-  click P5 call nodeDetail() "The main loop: reviewed revision passes, backed by literature search, Zotero-managed citations, and symbolic or numerical verification of the model."
+  click P5 call nodeDetail() "The central loop: reviewed revision passes, backed by literature search, Zotero-managed citations, and symbolic or numerical verification of the model."
+  click D2 call nodeDetail() "You decide when the manuscript stops improving — most papers go around the refinement loop many times before sign-off."
   click P6 call nodeDetail() "Final integrity gate, a tamper-evident record of the exact manuscript, and a clean package for co-authors."
+  click Z call nodeDetail() "A signed-off, verifiable manuscript with a pinned version and a co-author package."
 </pre>
   </div>
-  <aside id="detail" class="card" hidden>
-    <h2 id="detail-title"></h2>
-    <div id="detail-body"></div>
+  <aside id="detail" class="card">
+    <h2 id="detail-title">Details</h2>
+    <div id="detail-body" aria-live="polite"><p class="placeholder">Click a stage in the chart to see what it carries.</p></div>
   </aside>
 </div>
 
@@ -65,83 +159,64 @@ flowchart TD
 import mermaid from "https://cdn.jsdelivr.net/npm/mermaid@11.4.1/dist/mermaid.esm.min.mjs";
 
 const DETAILS = {
-  P1: { title: "Set up the paper repository", body: `
-    <p>Run the global bootstrap (<code>/set-academic-env</code>) in a fresh directory. It
-    checks the required document tools, copies in the workflow skills, automation hooks,
-    and templates, initializes git, and creates the Python environment.</p>
-    <p>Design principle: the harness is <i>copied, not referenced</i> — every paper repo is
-    portable and self-contained, with the harness version pinned for reproducibility.</p>
-    <p><a href="set-academic-env-flowchart.html">→ Drill-down: the bootstrap itself</a></p>` },
-  D1: { title: "Already have a draft?", body: `
-    <ul>
-      <li><b>No</b> — greenfield track: develop the idea inside the harness from day one.</li>
-      <li><b>Yes</b> — onboarding track: bring an existing draft into the harness layout.</li>
-    </ul>` },
-  P2: { title: "Develop and scope the research idea", body: `
-    <ul>
-      <li><code>/ideate</code> — propose 3–5 candidate questions, validate each against the
-          literature, and triage (alive / crowded / feasibility-risk / dead).</li>
-      <li><code>/start-paper</code> — grill the chosen idea into a written statement of the
-          paper's contribution.</li>
-      <li><code>/scope-paper</code> — turn it into a research brief: model class, empirical
-          strategy, target literature.</li>
-    </ul>` },
-  P3: { title: "Write the first full draft", body: `
-    <p><code>/draft-paper</code> produces the first complete LaTeX manuscript from the
-    research brief, with the model's hard constraints (theory priors) declared up front
-    so automated checks can hold the draft to them.</p>` },
-  P4: { title: "Import the existing draft", body: `
-    <ul>
-      <li><code>/onboard-paper</code> converts a Word draft to LaTeX, extracts citations,
-          and aligns everything with the harness layout.</li>
-      <li>Anything it can't convert faithfully is marked for human rescue and listed for
-          review afterwards.</li>
-      <li>Requires confirming the paper's data is public before import.</li>
-    </ul>` },
-  P5: { title: "Refine, verify, and cite iteratively", body: `
-    <p><b>Revision passes</b> — <code>/refine-light</code> (framing, clarity, fast checks)
-    and <code>/refine-heavy</code> (full integrity gate plus deep verification).</p>
-    <p><b>Available at any time:</b></p>
-    <ul>
-      <li><code>/research</code> — deep literature search with a written report; every
-          citation added to Zotero is individually confirmed.</li>
-      <li><code>/find-cite</code> / <code>/sync-zotero</code> — locate citations for claims;
-          keep the bibliography in lockstep with Zotero.</li>
-      <li><code>/verify-symbolic</code> — algebra spot-checks of equations (SymPy).</li>
-      <li><code>/verify-numerical</code> — solve the model numerically (Dynare or Julia)
-          and check it is well-behaved; always approval-gated.</li>
-      <li><code>/add-module</code> — scaffold empirical code with pipeline provenance.</li>
-      <li><code>/match-journal</code> / <code>/referee</code> — advisory journal fit and
-          adversarial referee reports (non-blocking).</li>
-    </ul>
-    <p>Manuscript variants (e.g. a short journal version) are supported throughout.</p>` },
-  P6: { title: "Finalize and export for co-authors", body: `
-    <ul>
-      <li><code>/signoff</code> — runs the final integrity gate and pins the exact
-          manuscript version with a cryptographic fingerprint, creating a tamper-evident
-          record of what was approved.</li>
-      <li><code>/export-coauthor</code> — produces a clean package for co-authors, free of
-          harness internals.</li>
-    </ul>` },
+  P1: { title: "Set up the paper repository", body: "<p><strong><a href='set-academic-env-flowchart.html'>→ Open this stage's own chart</a></strong></p><p>Run the global bootstrap (<code>/set-academic-env</code>) in a fresh directory. It checks the required document tools, copies in the workflow skills, automation hooks, and templates, initializes git, and creates the Python environment.</p><p>Design principle: the harness is <i>copied, not referenced</i> — every paper repo is portable and self-contained, with the harness version pinned for reproducibility.</p>" },
+  D1: { title: "Already have a draft?", body: "<ul><li><b>No</b> — greenfield track: develop the idea inside the harness from day one.</li><li><b>Yes</b> — onboarding track: bring an existing draft into the harness layout.</li></ul>" },
+  P2: { title: "Develop and scope the research idea", body: "<ul><li><code>/ideate</code> — propose 3–5 candidate questions, validate each against the literature, and triage (alive / crowded / feasibility-risk / dead).</li><li><code>/start-paper</code> — grill the chosen idea into a written statement of the paper's contribution.</li><li><code>/scope-paper</code> — turn it into a research brief: model class, empirical strategy, target literature.</li></ul>" },
+  P3: { title: "Write the first full draft", body: "<p><code>/draft-paper</code> produces the first complete LaTeX manuscript from the research brief, with the model's hard constraints (theory priors) declared up front so automated checks can hold the draft to them.</p>" },
+  P4: { title: "Import the existing draft", body: "<ul><li><code>/onboard-paper</code> converts a Word draft to LaTeX, extracts citations, and aligns everything with the harness layout.</li><li>Anything it can't convert faithfully is marked for human rescue and listed for review afterwards.</li><li>Requires confirming the paper's data is public before import.</li></ul>" },
+  P5: { title: "Refine, verify, and cite", body: "<p><b>Revision passes</b> — <code>/refine-light</code> (framing, clarity, fast checks) and <code>/refine-heavy</code> (full integrity gate plus deep verification — <a href='refine-heavy-flowchart.html'>charted separately</a>).</p><p><b>Available at any time:</b></p><ul><li><code>/research</code> — deep literature search with a written report; every citation added to Zotero is individually confirmed.</li><li><code>/find-cite</code> / <code>/sync-zotero</code> — locate citations for claims; keep the bibliography in lockstep with Zotero.</li><li><code>/verify-symbolic</code> — algebra spot-checks of equations (SymPy).</li><li><code>/verify-numerical</code> — solve the model numerically (Dynare or Julia) and check it is well-behaved; always approval-gated.</li><li><code>/add-module</code> — scaffold empirical code with pipeline provenance.</li><li><code>/match-journal</code> / <code>/referee</code> — advisory journal fit and adversarial referee reports (non-blocking).</li></ul><p>Manuscript variants (e.g. a short journal version) are supported throughout.</p>" },
+  D2: { title: "Ready to finalize?", body: "<p><b>Keep refining (amber return edge):</b> the manuscript goes around the refine–verify–cite loop as many times as it takes — you steer each pass and decide when it has stopped improving.</p><p><b>Ready:</b> the manuscript moves to sign-off and export.</p>" },
+  P6: { title: "Finalize and export for co-authors", body: "<ul><li><code>/signoff</code> — runs the final integrity gate and pins the exact manuscript version with a cryptographic fingerprint, creating a tamper-evident record of what was approved.</li><li><code>/export-coauthor</code> — produces a clean package for co-authors, free of harness internals.</li></ul>" },
+  Z: { title: "Paper ready", body: "<p>A signed-off manuscript with its version pinned and a tamper-evident record of what was approved, plus a clean co-author package free of harness internals.</p>" },
 };
 
-window.nodeDetail = (id) => {
+window.nodeDetail = (id, scroll = true) => {
   const d = DETAILS[id];
   if (!d) return;
-  document.getElementById("detail").hidden = false;
+  document.querySelector(".mermaid .node.selected")?.classList.remove("selected");
+  document.querySelector(`.mermaid .node[id^="flowchart-${id}-"]`)?.classList.add("selected");
   document.getElementById("detail-title").textContent = d.title;
   document.getElementById("detail-body").innerHTML = d.body;
+  const panel = document.getElementById("detail");
+  if (scroll && panel.getBoundingClientRect().top > window.innerHeight * 0.8)
+    panel.scrollIntoView({ behavior: "smooth", block: "start" });
 };
 
 mermaid.initialize({
   startOnLoad: false,
-  securityLevel: "loose",
+  securityLevel: "loose",          // required for click callbacks
   theme: "base",
-  themeVariables: { fontFamily: "system-ui, sans-serif", fontSize: "14px",
-                    lineColor: "#94a3b8", edgeLabelBackground: "#f6f8fb" },
-  flowchart: { curve: "basis", padding: 12, nodeSpacing: 40, rankSpacing: 50 },
+  themeVariables: { fontFamily: "'IBM Plex Sans', system-ui, sans-serif", fontSize: "14px",
+                    lineColor: "#8d8a82", edgeLabelBackground: "#fffefb" },
+  flowchart: { curve: "linear", padding: 14, nodeSpacing: 50, rankSpacing: 64 },
 });
 await mermaid.run();
+
+// Keyboard access: clickable nodes are tabbable buttons.
+// DOM ids are "flowchart-<nodeId>-<counter>" (mermaid 11.x internal — why the version is pinned).
+const domToNodeId = el => el.id.replace(/^flowchart-/, "").replace(/-\d+$/, "");
+document.querySelectorAll(".mermaid .node.clickable").forEach(n => {
+  n.setAttribute("tabindex", "0");
+  n.setAttribute("role", "button");
+  n.addEventListener("keydown", e => {
+    if (e.key === "Enter" || e.key === " ") { e.preventDefault(); nodeDetail(domToNodeId(n)); }
+  });
+});
+
+// Integrity check: every clickable node needs a DETAILS entry and vice versa.
+const clickIds = [...document.querySelectorAll(".mermaid .node.clickable")].map(domToNodeId);
+for (const id of clickIds) if (!DETAILS[id]) console.error(`flow-chart: click binding "${id}" has no DETAILS entry`);
+for (const id of Object.keys(DETAILS)) if (!clickIds.includes(id)) console.error(`flow-chart: DETAILS entry "${id}" has no click binding`);
+
+// Print appendix: full details in document order.
+const app = document.createElement("section");
+app.className = "appendix";
+app.innerHTML = "<h2>Stage details</h2>" +
+  Object.values(DETAILS).map(d => `<h3>${d.title}</h3>${d.body}`).join("");
+document.body.append(app);
+
+// Demonstrate the interaction: first stage pre-selected (no scroll on load).
+nodeDetail(Object.keys(DETAILS)[0], false);
 </script>
 </body>
 </html>

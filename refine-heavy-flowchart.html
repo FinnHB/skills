@@ -98,7 +98,7 @@
 </head>
 <body>
 <header>
-  <p class="kicker">Process map · <span class="name">AcademicPaperWriter</span></p>
+  <p class="kicker">Process map · <span class="name"><a href="academic-paper-writer-flowchart.html" style="color:var(--accent)">AcademicPaperWriter</a> › refine-heavy</span></p>
   <h1>Deep revision of a section</h1>
   <p class="subtitle">What happens when you ask the harness for a full re-evaluation and rewrite of one section (refine-heavy) — hover a stage for a summary; click it for details.</p>
 </header>
@@ -110,19 +110,21 @@
       <span class="chip"><span class="dot" style="background:var(--decision)"></span>Decision</span>
       <span class="chip"><span class="dot" style="background:var(--ok)"></span>Success</span>
       <span class="chip"><span class="dot" style="background:var(--stop)"></span>Stop</span>
+      <span class="chip">↻&nbsp;&nbsp;improves its output internally</span>
+      <span class="chip"><span class="dot" style="background:#fff4e6;border:1.5px dashed var(--decision)"></span>loop back</span>
     </div>
 <pre class="mermaid">
 flowchart TD
   accTitle: Deep revision of a section
   accDescr: Flowchart of the refine-heavy process: load context, critique, approval gate, rewrite, integrity checks, citation and language checks, hand back.
-  S(["Start"]):::start --> P1("Load the paper's context"):::process
+  S(["↰ Start a deep revision"]):::start --> P1("Load the paper's context"):::process
   P1 --> P2("Critique the target section"):::process
   P2 --> D1{"Approved?"}:::decision
   D1 -- "Cancel" --> E0(["Stop: nothing changed"]):::stop
   D1 -- "Approve" --> P3("Rewrite the section"):::process
-  P3 --> P4("Run deep integrity checks"):::process
+  P3 --> P4("Run deep integrity checks ↻"):::process
   P4 --> D2{"Checks pass?"}:::decision
-  D2 -- "No" --> E1(["Stop: review issues, re-run"]):::stop
+  D2 -- "Issues found" --> P2
   D2 -- "Yes" --> P5("Check citations and language"):::process
   P5 --> Z(["Section refined"]):::success
 
@@ -133,16 +135,17 @@ flowchart TD
   classDef decision fill:#fff4e6,stroke:#e8930c,stroke-width:1.5px,color:#7d4f0a
 
   linkStyle default stroke:#8d8a82,stroke-width:2px
-  %% edge index map: 0 S->P1, 1 P1->P2, 2 P2->D1, 3 D1->E0 (error), 4 D1->P3, 5 P3->P4, 6 P4->D2, 7 D2->E1 (error), 8 D2->P5, 9 P5->Z
-  %% DELETE the red linkStyle line below if the chart has no error edges
-  linkStyle 3,7 stroke:#c92a2a,stroke-width:1.5px,stroke-dasharray:4 3
+  %% edge index map: 0 S->P1, 1 P1->P2, 2 P2->D1, 3 D1->E0 (error), 4 D1->P3, 5 P3->P4, 6 P4->D2, 7 D2->P2 (loop), 8 D2->P5, 9 P5->Z
+  linkStyle 3 stroke:#c92a2a,stroke-width:1.5px,stroke-dasharray:4 3
+  linkStyle 7 stroke:#e8930c,stroke-width:1.5px,stroke-dasharray:4 3
 
+  click S href "academic-paper-writer-flowchart.html" "Go up one level: the paper lifecycle" _self
   click P1 call nodeDetail() "Silently reads the paper's rules, constraints, config, and research notes, then confirms which section it is about to work on."
   click P2 call nodeDetail() "Produces a structured critique: what works, what is broken, a proposed rewrite direction, and how invasive the rewrite would be."
   click D1 call nodeDetail() "A mandatory human gate. Nothing is rewritten until you explicitly approve the proposed direction — you can also amend it or walk away."
   click P3 call nodeDetail() "Rewrites only the approved section, keeping AI-attribution markers, flagging open questions, and citing only already-validated sources."
   click P4 call nodeDetail() "A three-layer mathematical integrity gate checks the rewritten section, retrying fixes automatically before giving up."
-  click D2 call nodeDetail() "If the gate still fails after retries, the run halts with a written report — the rewrite never silently proceeds on broken math."
+  click D2 call nodeDetail() "If the gate still fails after retries, the run halts with a written report; fixing the issues and re-running loops back to a fresh critique — broken math never proceeds."
   click P5 call nodeDetail() "Four parallel checks on citations, cross-references, and AI-sounding language; findings are recorded but do not block."
   click Z call nodeDetail() "You get a one-screen summary, a dated review report, and an automatic diff of exactly what changed."
 </pre>
@@ -157,6 +160,10 @@ flowchart TD
 import mermaid from "https://cdn.jsdelivr.net/npm/mermaid@11.4.1/dist/mermaid.esm.min.mjs";
 
 const DETAILS = {
+  S: { title: "↰ One level up", body: `
+    <p>Deep revision is one of the passes inside the paper lifecycle's refine–verify–cite
+    loop. Clicking the start node — or <a href='academic-paper-writer-flowchart.html'>this
+    link</a> — goes up one level.</p>` },
   P1: { title: "Load the paper's context", body: `
     <p>Read without prompting: <code>THEORY_PRIORS.md</code>, <code>CONSTITUTION.md</code>,
     <code>paper_config.yaml</code>, the original source PDF (if present), the target section
@@ -192,17 +199,19 @@ const DETAILS = {
       <li>Every edit is auto-snapshotted by a diff hook for the final report.</li>
     </ul>` },
   P4: { title: "Run deep integrity checks", body: `
+    <p><b>↻ Self-improving:</b> layer-1 failures are auto-fixed and retried up to 2 times
+    inside the gate before it gives up.</p>
     <p>The integrity gate (heavy mode) checks three layers:</p>
     <ol>
       <li><b>Notational coherence</b> — undefined symbols, equation/variable balance</li>
       <li><b>Class-aware coherence</b> — does the math behave like its declared model class?</li>
       <li><b>Symbolic spot-checks</b> — algebra verified with SymPy</li>
     </ol>
-    <p>Layer-1 failures are auto-fixed and retried up to 2 times inside the gate.
-    Results are written to a dated report in <code>worklog/review/</code>.</p>` },
+    <p>Results are written to a dated report in <code>worklog/review/</code>.</p>` },
   D2: { title: "All checks pass?", body: `
-    <p><b>Fail after retries:</b> the run halts and points to the review report; you fix the
-    issues and re-run. The rewrite is never handed back on top of failing math.</p>
+    <p><b>Issues found (amber return edge):</b> the run halts and points to the review report;
+    fixing the issues and re-running starts the cycle again from a fresh critique of the
+    now-current section. The rewrite is never handed back on top of failing math.</p>
     <p><b>Pass (or warnings only):</b> continue to the non-blocking checks.</p>` },
   P5: { title: "Check citations and language", body: `
     <p>Four checks run in parallel on the rewritten section:</p>
