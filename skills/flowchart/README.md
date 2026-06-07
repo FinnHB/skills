@@ -1,15 +1,15 @@
-# flow-chart
+# flowchart
 
 Creates purpose-level HTML flowcharts a newcomer can read in ~30 seconds. Renders with Mermaid.js (auto-layout — no clipped text), with hover tooltips and a click-to-expand detail panel where implementation specifics live. Node labels are plain language only; identifiers, env vars, and file paths are banned from labels by design.
 
 ## Usage examples
 
 ```
-/flow-chart make a flowchart of the deployment pipeline
+/flowchart make a flowchart of the deployment pipeline
 ```
 
 ```
-/flow-chart visualize what install.sh does
+/flowchart visualize what install.sh does
 ```
 
 ```

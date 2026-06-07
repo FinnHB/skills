@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<!-- flow-chart skill template — "engineering paper" design system.
+     Fill ONLY these slots; everything else stays byte-identical:
+       1. <title> — child charts: "Stage · Parent · Process map"
+       2. kicker project name (the .name span; child charts: breadcrumb,
+          see CHILD CHARTS below)
+       3. h1 + subtitle
+       4. accTitle / accDescr
+       5. the mermaid graph. Syntax: quote every node AND edge label —
+          copy the exact arrow and label forms from the sample graph
+          (P1("..."), edge labels like -- "Yes"; a literal two-dash
+          arrow here would close this HTML comment). No double quotes
+          inside any quoted string (labels, edge labels, click tooltips)
+          — rephrase or use #quot;. Write "and" not &, and &lt; for a
+          literal <. Edge arrows are plain ASCII, never unicode. Ids match
+          [A-Z][A-Za-z0-9]* — no hyphens/underscores, "end" reserved
+          (the keyboard handler parses DOM ids). Swimlanes:
+          subgraph SG1["Lane name"] ... end (quoted title; node ids stay
+          global). Then rewrite the %% edge index map comment — own line
+          only, trailing comments are a parse error — listing every edge
+          0-based in declaration order, error edges marked (error), loop
+          back-edges (loop); subgraph-internal edges count.
+       6. linkStyle indices — read from the edge index map; they index
+          ALL edges, not just error ones, and one out-of-range index
+          aborts the whole render. No error edges → DELETE the red
+          linkStyle line. Loop back-edges get their own dashed-amber line:
+          linkStyle <i> stroke:#e8930c,stroke-width:1.5px,stroke-dasharray:4 3
+       7. click bindings — one per process/decision/success node, never
+          start/stop. Sole exception: a child chart's start node IS the
+          up-link: click S href "<parent-file>" "Go up one level:
+          <parent name>" _self — explicit _self (mermaid's default
+          target is _blank); the href makes S clickable, so the
+          integrity check requires its DETAILS entry.
+       8. DETAILS map — same case-sensitive keys as the click bindings;
+          bodies are JS template literals: no backticks or ${ inside —
+          use <code> tags and HTML entities. Keep keys in node
+          declaration order; the FIRST entry is pre-selected on load
+          (child charts: S first, naming the parent).
+       9. legend — delete chips for node classes the chart doesn't use;
+          ADD these exact chips when their glyph/edge appears:
+          <span class="chip">⤵&nbsp;&nbsp;stage has its own chart</span>
+          <span class="chip">↻&nbsp;&nbsp;improves its output internally</span>
+          <span class="chip">↰&nbsp;&nbsp;start links to the parent chart</span>
+          <span class="chip"><span class="dot" style="background:#fff4e6;border:1.5px dashed var(--decision)"></span>loop back</span>
+     CHILD CHARTS (drill-downs, SKILL.md §2.3/§7) — slot patterns:
+       title:    Stage · Parent · Process map  (h1 stays the stage name)
+       kicker:   Process map · <span class="name"><a href="<parent-file>"
+                 style="color:var(--accent)">parent-slug</a> › stage-slug</span>
+       subtitle: Drill-down into one stage of
+                 <a href="<parent-file>">the parent process</a>: …
+       start:    ↰-prefixed label + slot 7's up-link + slot 8's S-first entry
+     CDN note: mermaid + fonts need internet at view time; fonts degrade to
+     the system stack offline. Fully offline: vendor dist/mermaid.min.js
+     (UMD, single file) and swap to a classic script — the ESM build
+     lazy-loads chunks and cannot be vendored as one file. -->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Flashcard generation and validation · Process map</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --paper:#f7f6f3; --card:#fffefb; --border:#e7e4dd; --ink:#1c1d20;
+    --ink-soft:#3a3d42; --muted:#6b6f76; --accent:#3b5bdb;
+    --code-bg:#f1efe9; --code-border:#e3e0d6;
+    --ok:#2f9e44; --stop:#c92a2a; --process:#3b5bdb; --decision:#e8930c;
+  }
+  body {
+    font-family: "IBM Plex Sans", system-ui, sans-serif;
+    background-color: var(--paper);
+    background-image: radial-gradient(circle, rgba(28,29,32,.06) .8px, transparent 1.6px);
+    background-size: 16px 16px;
+    color: var(--ink); line-height: 1.55;
+    margin: 0; padding: 40px clamp(20px, 4vw, 56px);
+  }
+  .kicker { font-size: 12px; font-weight: 600; letter-spacing: .14em;
+            text-transform: uppercase; color: var(--muted); margin: 0 0 8px; }
+  .kicker .name { text-transform: none; font-family: "IBM Plex Mono", monospace;
+                  font-weight: 400; letter-spacing: .02em; }
+  h1 { font-family: "Fraunces", Georgia, serif; font-weight: 600;
+       font-size: clamp(26px, 3.2vw, 34px); line-height: 1.15;
+       text-wrap: balance; margin: 0 0 8px; letter-spacing: -.015em; }
+  .subtitle { color: var(--muted); margin: 0 0 24px; font-size: 15px;
+              line-height: 1.5; max-width: 70ch; }
+  .card { background: var(--card); border: 1px solid var(--border); border-radius: 10px;
+          padding: 24px; box-shadow: 0 1px 2px rgb(28 29 32 / .05), 0 2px 8px rgb(28 29 32 / .04); }
+  .layout { display: flex; gap: 24px; align-items: flex-start; flex-wrap: wrap; }
+  .chart { flex: 1 1 560px; overflow-x: auto; }
+  pre.mermaid { margin: 0; display: flex; justify-content: center; }
+  .legend { display: flex; gap: 16px; flex-wrap: wrap;
+            border-bottom: 1px solid var(--border);
+            margin: -8px -24px 20px; padding: 0 24px 14px; }
+  .chip { display: flex; align-items: center; gap: 7px; font-size: 12.5px; color: #5a5e66; }
+  .chip .dot { width: 9px; height: 9px; border-radius: 3px; }
+  #detail { flex: 0 1 330px; position: sticky; top: 40px; min-height: 180px; }
+  #detail h2 { font-family: "Fraunces", Georgia, serif; font-weight: 600;
+               font-size: 18px; margin: 0 0 10px; }
+  #detail p, #detail li { font-size: 14px; color: var(--ink-soft); line-height: 1.55; }
+  #detail ul, #detail ol { padding-left: 18px; }
+  #detail .placeholder { color: #9a9da3; }
+  code { font-family: "IBM Plex Mono", ui-monospace, monospace; font-size: .85em;
+         background: var(--code-bg); border: 1px solid var(--code-border);
+         border-radius: 4px; padding: .08em .35em; color: var(--ink); }
+  .mermaid .node { cursor: default; }
+  .mermaid .node.clickable { cursor: pointer; transition: filter .15s ease; }
+  .mermaid .node.clickable:hover { filter: brightness(.97) drop-shadow(0 2px 5px rgb(28 29 32 / .18)); }
+  .mermaid .node.selected rect,
+  .mermaid .node.selected polygon { stroke: var(--ink); stroke-width: 2.5px; }
+  .mermaid .node:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
+  .mermaid .nodeLabel { font-weight: 500; }
+  .mermaidTooltip { background: var(--ink) !important; color: #fff !important;
+                    border-radius: 6px !important; font-size: 12px !important;
+                    font-family: "IBM Plex Sans", sans-serif !important;
+                    padding: 7px 11px !important; max-width: 290px !important;
+                    line-height: 1.45; z-index: 10; pointer-events: none; }
+  @keyframes rise { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
+  header { animation: rise .35s ease-out both; }
+  .chart  { animation: rise .35s .08s ease-out both; }
+  #detail { animation: rise .35s .16s ease-out both; }
+  @media (prefers-reduced-motion: reduce) { header, .chart, #detail { animation: none; } }
+  .appendix { display: none; }
+  @media print {
+    .appendix { display: block; margin-top: 24px; }
+    .appendix h2 { font-family: "Fraunces", Georgia, serif; font-size: 18px; margin: 0 0 8px; }
+    .appendix h3 { font-family: "Fraunces", Georgia, serif; font-size: 15px; margin: 16px 0 6px; }
+    .appendix p, .appendix li { font-size: 12px; color: var(--ink-soft); }
+    #detail { display: none; }
+    .card { break-inside: avoid; box-shadow: none; }
+    body { background-image: none; }
+    header, .chart { animation: none; }
+  }
+</style>
+</head>
+<body>
+<header>
+  <p class="kicker">Process map · <span class="name">GenAnkiDeck_Claude</span></p>
+  <h1>Flashcard generation and validation</h1>
+  <p class="subtitle">How a word list in <code>input_files.json</code> becomes enriched, vocabulary-validated flashcards in the SQLite database — hover a stage for a summary; click it for details.</p>
+</header>
+<div class="layout">
+  <div class="card chart">
+    <div class="legend">
+      <span class="chip"><span class="dot" style="background:#fffefb;border:1.5px solid var(--ink)"></span>Start</span>
+      <span class="chip"><span class="dot" style="background:var(--process)"></span>Stage</span>
+      <span class="chip"><span class="dot" style="background:var(--ok)"></span>Success</span>
+      <span class="chip">⤵&nbsp;&nbsp;stage has its own chart</span>
+      <span class="chip">↻&nbsp;&nbsp;improves its output internally</span>
+      <span class="chip"><span class="dot" style="background:#fff4e6;border:1.5px dashed var(--decision)"></span>loop back</span>
+    </div>
+<pre class="mermaid">
+flowchart TD
+  accTitle: Flashcard generation and validation
+  accDescr: From a configured word list to enriched flashcard rows in SQLite. Load the deck, assemble the known vocabulary, seed the database, then for each word generate content with GPT, validate and repair the example sentence, and save the result.
+  S(["Run deck generation"]):::start --> P1("Load the deck definition"):::process
+  P1 --> P2("Assemble known vocabulary"):::process
+  P2 --> P3("Seed new words into database ⤵"):::process
+  P3 --> P4("Choose words needing data"):::process
+  P4 --> P5("Generate card content ⤵"):::process
+  P5 --> P6("Validate and repair sentence ↻ ⤵"):::process
+  P6 --> P7("Save enriched card to database"):::process
+  P7 -- "Next word" --> P5
+  P7 -- "All words done" --> Z(["Deck enriched, ready to study"]):::success
+
+  classDef start    fill:#fffefb,stroke:#1c1d20,stroke-width:1.5px,color:#1c1d20
+  classDef success  fill:#ebfbee,stroke:#2f9e44,stroke-width:1.5px,color:#1e6b30
+  classDef stop     fill:#fff5f5,stroke:#c92a2a,stroke-width:1.5px,stroke-dasharray:5 3,color:#9b2424
+  classDef process  fill:#edf2ff,stroke:#3b5bdb,stroke-width:1.5px,color:#22338f
+  classDef decision fill:#fff4e6,stroke:#e8930c,stroke-width:1.5px,color:#7d4f0a
+
+  linkStyle default stroke:#8d8a82,stroke-width:2px
+  %% edge index map: 0 S->P1, 1 P1->P2, 2 P2->P3, 3 P3->P4, 4 P4->P5, 5 P5->P6, 6 P6->P7, 7 P7->P5 (loop), 8 P7->Z
+  linkStyle 7 stroke:#e8930c,stroke-width:1.5px,stroke-dasharray:4 3
+
+  click P1 call nodeDetail() "Reads the named deck from input_files.json: words, language, image style, prerequisites."
+  click P2 call nodeDetail() "Builds the full list of words the learner already knows: this deck plus every prerequisite deck, resolved transitively."
+  click P3 call nodeDetail() "Ensures every word has a database row, a review card, and a semantic embedding before generation starts. Click for the link to this stage's own chart."
+  click P4 call nodeDetail() "Skips words enriched in a previous run, so re-running a deck only does the remaining work."
+  click P5 call nodeDetail() "GPT writes pinyin, an English meaning, and an example sentence constrained to similar known words. Click for the link to this stage's own chart."
+  click P6 call nodeDetail() "Deterministic vocabulary check, with an LLM judge and rewrite loop for sentences that use unknown words. Click for the link to this stage's own chart."
+  click P7 call nodeDetail() "Writes the enriched fields onto the word row in SQLite and appends a telemetry record for reporting."
+  click Z call nodeDetail() "The words table is the single source of truth: images, audio, and review sessions all read from it."
+</pre>
+  </div>
+  <aside id="detail" class="card">
+    <h2 id="detail-title">Details</h2>
+    <div id="detail-body" aria-live="polite"><p class="placeholder">Click a stage in the chart to see what it carries.</p></div>
+  </aside>
+</div>
+
+<script type="module">
+import mermaid from "https://cdn.jsdelivr.net/npm/mermaid@11.4.1/dist/mermaid.esm.min.mjs";
+
+const DETAILS = {
+  P1: { title: "Load the deck definition", body: "<ul><li>A deck is an entry in <code>input_files.json</code>: canonical <code>name</code>, <code>language</code>, the word list, an <code>image_style</code> preset, and optional <code>prerequisites</code> (e.g. HSK 2 builds on HSK 1).</li><li>Run as <code>python Scripts/pipeline/generate_word_data.py --list 'HSK 1'</code>; flags: <code>--overwrite</code> re-generates existing data, <code>--limit N</code> caps the run for smoke tests.</li></ul>" },
+  P2: { title: "Assemble known vocabulary", body: "<ul><li>Validation vocabulary = this deck's words plus every transitive prerequisite deck's words, deduplicated (HSK 3 pulls in HSK 2 and HSK 1).</li><li>Prerequisites resolve depth-first from the <code>lists</code> / <code>list_prerequisites</code> tables (seeded from <code>input_files.json</code>), with cycle detection.</li><li>Deliberately built from the configured word lists, not database state — validation is never under-informed by a half-seeded DB.</li></ul>" },
+  P3: { title: "Seed new words into database", body: "<p><a href='seed-database.html'>→ Open this stage's own chart</a></p><ul><li>Creates or migrates the SQLite schema, registers deck metadata, inserts a bare row plus a review card per new word, and embeds anything missing a vector.</li><li>Idempotent — re-runs skip words already present.</li></ul>" },
+  P4: { title: "Choose words needing data", body: "<ul><li>A word counts as enriched when its <code>translation</code> is non-empty; those are skipped unless <code>--overwrite</code> is passed.</li><li><code>--limit N</code> trims the work queue (input order) for smoke tests.</li></ul>" },
+  P5: { title: "Generate card content", body: "<p><a href='generate-content.html'>→ Open this stage's own chart</a></p><ul><li>Embeds the target word, pulls its 100 nearest known words from the DB, and asks <code>gpt-3.5-turbo</code> for pinyin, translation, and an example sentence using only that vocabulary (the i+1 constraint).</li><li>All LLM calls are cached in <code>Data/llm_cache.db</code> — re-runs are free.</li></ul>" },
+  P6: { title: "Validate and repair sentence", body: "<p><a href='validate-sentence.html'>→ Open this stage's own chart</a></p><ul><li>↻ Internal retry loop: a deterministic jieba coverage check accepts the sentence at ≥ 85% known content words; failures go to a <code>gpt-4o</code> judge and a <code>gpt-4o-mini</code> rewrite, then re-check.</li><li>Budget: 1 retry for 1–2 violations, 3 for more; exits early when the score stops improving; the best sentence seen is always kept.</li></ul>" },
+  P7: { title: "Save enriched card to database", body: "<ul><li>Under a shared lock, one <code>UPDATE</code> writes pinyin, translation, the example sentence (Chinese / pinyin / English), and the final coverage score onto the word's row in <code>Data/flashcards.db</code>.</li><li>A telemetry record (attempts, scores, exit reason) is appended to <code>Logs/generation/&lt;run-id&gt;.jsonl</code> for <code>report.py</code>.</li><li>A word that errors is recorded and skipped — the run continues; 10 worker threads process words in parallel.</li></ul>" },
+  Z: { title: "Deck enriched, ready to study", body: "<p>No JSON export step — the <code>words</code> table is the single source of truth. Downstream, <code>generate_images.py</code> reads these rows and writes <code>image_path</code> back, and <code>review.py</code> serves FSRS reviews from the companion <code>cards</code> / <code>reviews</code> tables.</p>" },
+};
+
+window.nodeDetail = (id, scroll = true) => {
+  const d = DETAILS[id];
+  if (!d) return;
+  document.querySelector(".mermaid .node.selected")?.classList.remove("selected");
+  document.querySelector(`.mermaid .node[id^="flowchart-${id}-"]`)?.classList.add("selected");
+  document.getElementById("detail-title").textContent = d.title;
+  document.getElementById("detail-body").innerHTML = d.body;
+  const panel = document.getElementById("detail");
+  if (scroll && panel.getBoundingClientRect().top > window.innerHeight * 0.8)
+    panel.scrollIntoView({ behavior: "smooth", block: "start" });
+};
+
+mermaid.initialize({
+  startOnLoad: false,
+  securityLevel: "loose",          // required for click callbacks
+  theme: "base",
+  themeVariables: { fontFamily: "'IBM Plex Sans', system-ui, sans-serif", fontSize: "14px",
+                    lineColor: "#8d8a82", edgeLabelBackground: "#fffefb" },
+  flowchart: { curve: "linear", padding: 14, nodeSpacing: 50, rankSpacing: 64 },
+});
+await mermaid.run();
+
+// Keyboard access: clickable nodes are tabbable buttons.
+// DOM ids are "flowchart-<nodeId>-<counter>" (mermaid 11.x internal — why the version is pinned).
+const domToNodeId = el => el.id.replace(/^flowchart-/, "").replace(/-\d+$/, "");
+document.querySelectorAll(".mermaid .node.clickable").forEach(n => {
+  n.setAttribute("tabindex", "0");
+  n.setAttribute("role", "button");
+  n.addEventListener("keydown", e => {
+    if (e.key === "Enter" || e.key === " ") { e.preventDefault(); nodeDetail(domToNodeId(n)); }
+  });
+});
+
+// Integrity check: every clickable node needs a DETAILS entry and vice versa.
+const clickIds = [...document.querySelectorAll(".mermaid .node.clickable")].map(domToNodeId);
+for (const id of clickIds) if (!DETAILS[id]) console.error(`flow-chart: click binding "${id}" has no DETAILS entry`);
+for (const id of Object.keys(DETAILS)) if (!clickIds.includes(id)) console.error(`flow-chart: DETAILS entry "${id}" has no click binding`);
+
+// Print appendix: full details in document order.
+const app = document.createElement("section");
+app.className = "appendix";
+app.innerHTML = "<h2>Stage details</h2>" +
+  Object.values(DETAILS).map(d => `<h3>${d.title}</h3>${d.body}`).join("");
+document.body.append(app);
+
+// Demonstrate the interaction: first DETAILS entry pre-selected (no scroll on load).
+nodeDetail(Object.keys(DETAILS)[0], false);
+</script>
+</body>
+</html>

@@ -56,7 +56,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<title>[Process Name] · Process map</title>
+<title>Generate card content · Flashcard generation and validation · Process map</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400&display=swap" rel="stylesheet">
 <style>
@@ -134,28 +134,27 @@
 </head>
 <body>
 <header>
-  <p class="kicker">Process map · <span class="name">[project-name]</span></p>
-  <h1>[Process Name]</h1>
-  <p class="subtitle">[One-sentence purpose statement] — hover a stage for a summary; click it for details.</p>
+  <p class="kicker">Process map · <span class="name"><a href="index.html" style="color:var(--accent)">flashcard-generation</a> › generate-content</span></p>
+  <h1>Generate card content</h1>
+  <p class="subtitle">Drill-down into one stage of <a href="index.html">the parent process</a>: how one word becomes a draft card — pinyin, meaning, and an example sentence built from words the learner already knows — hover a stage for a summary; click it for details.</p>
 </header>
 <div class="layout">
   <div class="card chart">
     <div class="legend">
       <span class="chip"><span class="dot" style="background:#fffefb;border:1.5px solid var(--ink)"></span>Start</span>
       <span class="chip"><span class="dot" style="background:var(--process)"></span>Stage</span>
-      <span class="chip"><span class="dot" style="background:var(--decision)"></span>Decision</span>
       <span class="chip"><span class="dot" style="background:var(--ok)"></span>Success</span>
-      <span class="chip"><span class="dot" style="background:var(--stop)"></span>Stop</span>
+      <span class="chip">↰&nbsp;&nbsp;start links to the parent chart</span>
     </div>
 <pre class="mermaid">
 flowchart TD
-  accTitle: [Process Name]
-  accDescr: [One-sentence description of the flow for screen readers.]
-  S(["Start"]):::start --> D1{"Prerequisites met?"}:::decision
-  D1 -- "No" --> E1(["Stop: setup cannot continue"]):::stop
-  D1 -- "Yes" --> P1("First stage"):::process
-  P1 --> P2("Second stage"):::process
-  P2 --> Z(["Done"]):::success
+  accTitle: Generate card content
+  accDescr: Embed the target word, retrieve its closest known words, build a vocabulary-constrained prompt, and ask GPT for pinyin, translation, and an example sentence.
+  S(["↰ From: Flashcard generation"]):::start --> P1("Embed the target word"):::process
+  P1 --> P2("Find closest known words"):::process
+  P2 --> P3("Build vocabulary-constrained prompt"):::process
+  P3 --> P4("Ask GPT for card fields"):::process
+  P4 --> Z(["Draft card ready for validation"]):::success
 
   classDef start    fill:#fffefb,stroke:#1c1d20,stroke-width:1.5px,color:#1c1d20
   classDef success  fill:#ebfbee,stroke:#2f9e44,stroke-width:1.5px,color:#1e6b30
@@ -164,13 +163,14 @@ flowchart TD
   classDef decision fill:#fff4e6,stroke:#e8930c,stroke-width:1.5px,color:#7d4f0a
 
   linkStyle default stroke:#8d8a82,stroke-width:2px
-  %% edge index map: 0 S->D1, 1 D1->E1 (error), 2 D1->P1, 3 P1->P2, 4 P2->Z
-  linkStyle 1 stroke:#c92a2a,stroke-width:1.5px,stroke-dasharray:4 3
+  %% edge index map: 0 S->P1, 1 P1->P2, 2 P2->P3, 3 P3->P4, 4 P4->Z
 
-  click D1 call nodeDetail() "1-2 sentence tooltip"
-  click P1 call nodeDetail() "1-2 sentence tooltip"
-  click P2 call nodeDetail() "1-2 sentence tooltip"
-  click Z call nodeDetail() "1-2 sentence tooltip"
+  click S href "index.html" "Go up one level: Flashcard generation and validation" _self
+  click P1 call nodeDetail() "The word is embedded so it can be compared against every known word's stored vector."
+  click P2 call nodeDetail() "Cosine similarity over the embeddings in the words table returns the 100 nearest known words."
+  click P3 call nodeDetail() "The prompt template is rendered with the word and the similar-words list as the allowed vocabulary."
+  click P4 call nodeDetail() "gpt-3.5-turbo returns pinyin, an English meaning, and an example sentence as JSON."
+  click Z call nodeDetail() "The draft sentence is not yet trusted — it flows straight into validation."
 </pre>
   </div>
   <aside id="detail" class="card">
@@ -183,10 +183,12 @@ flowchart TD
 import mermaid from "https://cdn.jsdelivr.net/npm/mermaid@11.4.1/dist/mermaid.esm.min.mjs";
 
 const DETAILS = {
-  D1: { title: "Prerequisites met?", body: "<p>The failure causes that route a reader to the Stop node live here.</p>" },
-  P1: { title: "First stage", body: "<ul><li>implementation specifics live here</li></ul>" },
-  P2: { title: "Second stage", body: "<p>…</p>" },
-  Z: { title: "Done", body: "<p>What success leaves behind — outputs and where they land.</p>" },
+  S: { title: "↰ Up: Flashcard generation and validation", body: "<p><a href='index.html'>↰ Back to the parent chart</a> — this chart expands its “Generate card content” stage, which runs once per word, on 10 parallel worker threads.</p>" },
+  P1: { title: "Embed the target word", body: "<p><code>text-embedding-3-small</code> via the cached client — the word was already embedded during seeding, so this is normally a free cache hit on <code>Data/llm_cache.db</code>.</p>" },
+  P2: { title: "Find closest known words", body: "<ul><li><code>get_top_k_similar_words()</code> ranks every embedded word by cosine similarity, k = 100, under the shared DB lock.</li><li>Giving GPT a semantically relevant slice of vocabulary — rather than the whole list — is what makes natural i+1 sentences possible.</li></ul>" },
+  P3: { title: "Build vocabulary-constrained prompt", body: "<ul><li>Prompts are standalone markdown files with YAML frontmatter under <code>Prompts/word_data/</code>, loaded by <code>PromptManager</code>.</li><li><code>generate_word.md</code> plus a <code>vocab_constraint</code> partial listing the allowed words; a separate system prompt sets the persona.</li></ul>" },
+  P4: { title: "Ask GPT for card fields", body: "<ul><li>JSON mode (<code>response_format: json_object</code>); required keys: <code>chinese</code>, <code>pinyin</code>, <code>translation</code>, and an <code>example</code> object with the same three fields.</li><li>Missing keys or invalid JSON raise — the word is logged as failed and the run continues with the other words.</li><li>Responses are cached in <code>Data/llm_cache.db</code>, keyed on model + prompts, so re-runs are free.</li></ul>" },
+  Z: { title: "Draft card ready for validation", body: "<p>The example sentence was generated under a vocabulary constraint but never verified — the parent pipeline's validation stage scores it and, if needed, repairs it.</p>" },
 };
 
 window.nodeDetail = (id, scroll = true) => {

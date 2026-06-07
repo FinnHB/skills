@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<!-- flow-chart skill template — "engineering paper" design system.
+     Fill ONLY these slots; everything else stays byte-identical:
+       1. <title> — child charts: "Stage · Parent · Process map"
+       2. kicker project name (the .name span; child charts: breadcrumb,
+          see CHILD CHARTS below)
+       3. h1 + subtitle
+       4. accTitle / accDescr
+       5. the mermaid graph. Syntax: quote every node AND edge label —
+          copy the exact arrow and label forms from the sample graph
+          (P1("..."), edge labels like -- "Yes"; a literal two-dash
+          arrow here would close this HTML comment). No double quotes
+          inside any quoted string (labels, edge labels, click tooltips)
+          — rephrase or use #quot;. Write "and" not &, and &lt; for a
+          literal <. Edge arrows are plain ASCII, never unicode. Ids match
+          [A-Z][A-Za-z0-9]* — no hyphens/underscores, "end" reserved
+          (the keyboard handler parses DOM ids). Swimlanes:
+          subgraph SG1["Lane name"] ... end (quoted title; node ids stay
+          global). Then rewrite the %% edge index map comment — own line
+          only, trailing comments are a parse error — listing every edge
+          0-based in declaration order, error edges marked (error), loop
+          back-edges (loop); subgraph-internal edges count.
+       6. linkStyle indices — read from the edge index map; they index
+          ALL edges, not just error ones, and one out-of-range index
+          aborts the whole render. No error edges → DELETE the red
+          linkStyle line. Loop back-edges get their own dashed-amber line:
+          linkStyle <i> stroke:#e8930c,stroke-width:1.5px,stroke-dasharray:4 3
+       7. click bindings — one per process/decision/success node, never
+          start/stop. Sole exception: a child chart's start node IS the
+          up-link: click S href "<parent-file>" "Go up one level:
+          <parent name>" _self — explicit _self (mermaid's default
+          target is _blank); the href makes S clickable, so the
+          integrity check requires its DETAILS entry.
+       8. DETAILS map — same case-sensitive keys as the click bindings;
+          bodies are JS template literals: no backticks or ${ inside —
+          use <code> tags and HTML entities. Keep keys in node
+          declaration order; the FIRST entry is pre-selected on load
+          (child charts: S first, naming the parent).
+       9. legend — delete chips for node classes the chart doesn't use;
+          ADD these exact chips when their glyph/edge appears:
+          <span class="chip">⤵&nbsp;&nbsp;stage has its own chart</span>
+          <span class="chip">↻&nbsp;&nbsp;improves its output internally</span>
+          <span class="chip">↰&nbsp;&nbsp;start links to the parent chart</span>
+          <span class="chip"><span class="dot" style="background:#fff4e6;border:1.5px dashed var(--decision)"></span>loop back</span>
+     CHILD CHARTS (drill-downs, SKILL.md §2.3/§7) — slot patterns:
+       title:    Stage · Parent · Process map  (h1 stays the stage name)
+       kicker:   Process map · <span class="name"><a href="<parent-file>"
+                 style="color:var(--accent)">parent-slug</a> › stage-slug</span>
+       subtitle: Drill-down into one stage of
+                 <a href="<parent-file>">the parent process</a>: …
+       start:    ↰-prefixed label + slot 7's up-link + slot 8's S-first entry
+     CDN note: mermaid + fonts need internet at view time; fonts degrade to
+     the system stack offline. Fully offline: vendor dist/mermaid.min.js
+     (UMD, single file) and swap to a classic script — the ESM build
+     lazy-loads chunks and cannot be vendored as one file. -->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Validate and repair the sentence · Flashcard generation and validation · Process map</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --paper:#f7f6f3; --card:#fffefb; --border:#e7e4dd; --ink:#1c1d20;
+    --ink-soft:#3a3d42; --muted:#6b6f76; --accent:#3b5bdb;
+    --code-bg:#f1efe9; --code-border:#e3e0d6;
+    --ok:#2f9e44; --stop:#c92a2a; --process:#3b5bdb; --decision:#e8930c;
+  }
+  body {
+    font-family: "IBM Plex Sans", system-ui, sans-serif;
+    background-color: var(--paper);
+    background-image: radial-gradient(circle, rgba(28,29,32,.06) .8px, transparent 1.6px);
+    background-size: 16px 16px;
+    color: var(--ink); line-height: 1.55;
+    margin: 0; padding: 40px clamp(20px, 4vw, 56px);
+  }
+  .kicker { font-size: 12px; font-weight: 600; letter-spacing: .14em;
+            text-transform: uppercase; color: var(--muted); margin: 0 0 8px; }
+  .kicker .name { text-transform: none; font-family: "IBM Plex Mono", monospace;
+                  font-weight: 400; letter-spacing: .02em; }
+  h1 { font-family: "Fraunces", Georgia, serif; font-weight: 600;
+       font-size: clamp(26px, 3.2vw, 34px); line-height: 1.15;
+       text-wrap: balance; margin: 0 0 8px; letter-spacing: -.015em; }
+  .subtitle { color: var(--muted); margin: 0 0 24px; font-size: 15px;
+              line-height: 1.5; max-width: 70ch; }
+  .card { background: var(--card); border: 1px solid var(--border); border-radius: 10px;
+          padding: 24px; box-shadow: 0 1px 2px rgb(28 29 32 / .05), 0 2px 8px rgb(28 29 32 / .04); }
+  .layout { display: flex; gap: 24px; align-items: flex-start; flex-wrap: wrap; }
+  .chart { flex: 1 1 560px; overflow-x: auto; }
+  pre.mermaid { margin: 0; display: flex; justify-content: center; }
+  .legend { display: flex; gap: 16px; flex-wrap: wrap;
+            border-bottom: 1px solid var(--border);
+            margin: -8px -24px 20px; padding: 0 24px 14px; }
+  .chip { display: flex; align-items: center; gap: 7px; font-size: 12.5px; color: #5a5e66; }
+  .chip .dot { width: 9px; height: 9px; border-radius: 3px; }
+  #detail { flex: 0 1 330px; position: sticky; top: 40px; min-height: 180px; }
+  #detail h2 { font-family: "Fraunces", Georgia, serif; font-weight: 600;
+               font-size: 18px; margin: 0 0 10px; }
+  #detail p, #detail li { font-size: 14px; color: var(--ink-soft); line-height: 1.55; }
+  #detail ul, #detail ol { padding-left: 18px; }
+  #detail .placeholder { color: #9a9da3; }
+  code { font-family: "IBM Plex Mono", ui-monospace, monospace; font-size: .85em;
+         background: var(--code-bg); border: 1px solid var(--code-border);
+         border-radius: 4px; padding: .08em .35em; color: var(--ink); }
+  .mermaid .node { cursor: default; }
+  .mermaid .node.clickable { cursor: pointer; transition: filter .15s ease; }
+  .mermaid .node.clickable:hover { filter: brightness(.97) drop-shadow(0 2px 5px rgb(28 29 32 / .18)); }
+  .mermaid .node.selected rect,
+  .mermaid .node.selected polygon { stroke: var(--ink); stroke-width: 2.5px; }
+  .mermaid .node:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
+  .mermaid .nodeLabel { font-weight: 500; }
+  .mermaidTooltip { background: var(--ink) !important; color: #fff !important;
+                    border-radius: 6px !important; font-size: 12px !important;
+                    font-family: "IBM Plex Sans", sans-serif !important;
+                    padding: 7px 11px !important; max-width: 290px !important;
+                    line-height: 1.45; z-index: 10; pointer-events: none; }
+  @keyframes rise { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
+  header { animation: rise .35s ease-out both; }
+  .chart  { animation: rise .35s .08s ease-out both; }
+  #detail { animation: rise .35s .16s ease-out both; }
+  @media (prefers-reduced-motion: reduce) { header, .chart, #detail { animation: none; } }
+  .appendix { display: none; }
+  @media print {
+    .appendix { display: block; margin-top: 24px; }
+    .appendix h2 { font-family: "Fraunces", Georgia, serif; font-size: 18px; margin: 0 0 8px; }
+    .appendix h3 { font-family: "Fraunces", Georgia, serif; font-size: 15px; margin: 16px 0 6px; }
+    .appendix p, .appendix li { font-size: 12px; color: var(--ink-soft); }
+    #detail { display: none; }
+    .card { break-inside: avoid; box-shadow: none; }
+    body { background-image: none; }
+    header, .chart { animation: none; }
+  }
+</style>
+</head>
+<body>
+<header>
+  <p class="kicker">Process map · <span class="name"><a href="index.html" style="color:var(--accent)">flashcard-generation</a> › validate-sentence</span></p>
+  <h1>Validate and repair the sentence</h1>
+  <p class="subtitle">Drill-down into one stage of <a href="index.html">the parent process</a>: how an example sentence is checked against the learner's vocabulary and rewritten until it fits — hover a stage for a summary; click it for details.</p>
+</header>
+<div class="layout">
+  <div class="card chart">
+    <div class="legend">
+      <span class="chip"><span class="dot" style="background:#fffefb;border:1.5px solid var(--ink)"></span>Start</span>
+      <span class="chip"><span class="dot" style="background:var(--process)"></span>Stage</span>
+      <span class="chip"><span class="dot" style="background:var(--decision)"></span>Decision</span>
+      <span class="chip"><span class="dot" style="background:var(--ok)"></span>Success</span>
+      <span class="chip">⤵&nbsp;&nbsp;stage has its own chart</span>
+      <span class="chip">↰&nbsp;&nbsp;start links to the parent chart</span>
+      <span class="chip"><span class="dot" style="background:#fff4e6;border:1.5px dashed var(--decision)"></span>loop back</span>
+    </div>
+<pre class="mermaid">
+flowchart TD
+  accTitle: Validate and repair the sentence
+  accDescr: Score the sentence against known vocabulary. If too many words are unknown, an LLM judge diagnoses the violations and a remediation model rewrites the sentence, looping until it passes, stops improving, or the retry budget runs out.
+  S(["↰ From: Flashcard generation"]):::start --> P1("Score sentence against known words ⤵"):::process
+  P1 --> D1{"Enough words known?"}:::decision
+  D1 -- "Yes" --> Z(["Sentence accepted"]):::success
+  D1 -- "No" --> D2{"Keep trying?"}:::decision
+  D2 -- "Yes" --> P2("Judge diagnoses each violation"):::process
+  P2 --> P3("Rewrite the sentence"):::process
+  P3 -- "Re-check" --> P1
+  D2 -- "No" --> Z2(["Best attempt kept"]):::success
+
+  classDef start    fill:#fffefb,stroke:#1c1d20,stroke-width:1.5px,color:#1c1d20
+  classDef success  fill:#ebfbee,stroke:#2f9e44,stroke-width:1.5px,color:#1e6b30
+  classDef stop     fill:#fff5f5,stroke:#c92a2a,stroke-width:1.5px,stroke-dasharray:5 3,color:#9b2424
+  classDef process  fill:#edf2ff,stroke:#3b5bdb,stroke-width:1.5px,color:#22338f
+  classDef decision fill:#fff4e6,stroke:#e8930c,stroke-width:1.5px,color:#7d4f0a
+
+  linkStyle default stroke:#8d8a82,stroke-width:2px
+  %% edge index map: 0 S->P1, 1 P1->D1, 2 D1->Z, 3 D1->D2, 4 D2->P2, 5 P2->P3, 6 P3->P1 (loop), 7 D2->Z2
+  linkStyle 6 stroke:#e8930c,stroke-width:1.5px,stroke-dasharray:4 3
+
+  click S href "index.html" "Go up one level: Flashcard generation and validation" _self
+  click P1 call nodeDetail() "Deterministic jieba-based coverage check: what fraction of content words does the learner already know? Click for the link to this stage's own chart."
+  click D1 call nodeDetail() "Pass mark is 85% known content words; passing sentences are accepted immediately."
+  click D2 call nodeDetail() "Retries continue while budget remains and the score is still improving."
+  click P2 call nodeDetail() "gpt-4o examines each unknown word and returns structured feedback plus a rewrite suggestion."
+  click P3 call nodeDetail() "gpt-4o-mini rewrites the sentence using the judge's feedback and the full known vocabulary."
+  click Z call nodeDetail() "The sentence passed the coverage check and is saved with its score."
+  click Z2 call nodeDetail() "When retries run out, the highest-scoring sentence seen is kept — cards always ship."
+</pre>
+  </div>
+  <aside id="detail" class="card">
+    <h2 id="detail-title">Details</h2>
+    <div id="detail-body" aria-live="polite"><p class="placeholder">Click a stage in the chart to see what it carries.</p></div>
+  </aside>
+</div>
+
+<script type="module">
+import mermaid from "https://cdn.jsdelivr.net/npm/mermaid@11.4.1/dist/mermaid.esm.min.mjs";
+
+const DETAILS = {
+  S: { title: "↰ Up: Flashcard generation and validation", body: "<p><a href='index.html'>↰ Back to the parent chart</a> — this chart expands its “Validate and repair sentence” stage.</p>" },
+  P1: { title: "Score sentence against known words", body: "<p><a href='validate-sentence-coverage-check.html'>→ Open this stage's own chart</a></p><ul><li>Coverage = known content words ÷ total content words; the 283-word function-word whitelist is excluded from both sides.</li><li>Validates against the full configured vocabulary (deck + all prerequisites), not database state.</li></ul>" },
+  D1: { title: "Enough words known?", body: "<ul><li><code>COVERAGE_THRESHOLD = 0.85</code>.</li><li>Telemetry exit reason: <code>threshold_met</code>; attempts, per-attempt scores, and violation counts all land in the run's JSONL log.</li></ul>" },
+  D2: { title: "Keep trying?", body: "<ul><li>Retry budget set by the first failure: 1 retry for 1–2 violations, 3 retries for more.</li><li>Early exit when the latest score did not beat the previous one (<code>no_improvement</code>) — avoids wasting tokens on a stalled loop.</li><li>Otherwise the loop runs until <code>budget_exhausted</code>.</li></ul>" },
+  P2: { title: "Judge diagnoses each violation", body: "<ul><li><code>gpt-4o</code>, JSON mode: per-violation analysis plus an <code>overall_suggestion</code>.</li><li>Receives the target word, the failed sentence, the violation tokens, and the full known vocabulary.</li></ul>" },
+  P3: { title: "Rewrite the sentence", body: "<ul><li><code>gpt-4o-mini</code> returns a fresh <code>chinese</code> / <code>pinyin</code> / <code>translation</code> triple.</li><li>The rewrite must keep the target word while replacing the flagged unknown words.</li></ul>" },
+  Z: { title: "Sentence accepted", body: "<p>The accepted sentence and its final score are returned to the parent pipeline, which writes them to the database.</p>" },
+  Z2: { title: "Best attempt kept", body: "<p>Every attempt is scored and the best one wins — a low <code>example_difficulty_score</code> on the card and the JSONL telemetry (surfaced by <code>report.py</code>) make weak sentences visible for later improvement.</p>" },
+};
+
+window.nodeDetail = (id, scroll = true) => {
+  const d = DETAILS[id];
+  if (!d) return;
+  document.querySelector(".mermaid .node.selected")?.classList.remove("selected");
+  document.querySelector(`.mermaid .node[id^="flowchart-${id}-"]`)?.classList.add("selected");
+  document.getElementById("detail-title").textContent = d.title;
+  document.getElementById("detail-body").innerHTML = d.body;
+  const panel = document.getElementById("detail");
+  if (scroll && panel.getBoundingClientRect().top > window.innerHeight * 0.8)
+    panel.scrollIntoView({ behavior: "smooth", block: "start" });
+};
+
+mermaid.initialize({
+  startOnLoad: false,
+  securityLevel: "loose",          // required for click callbacks
+  theme: "base",
+  themeVariables: { fontFamily: "'IBM Plex Sans', system-ui, sans-serif", fontSize: "14px",
+                    lineColor: "#8d8a82", edgeLabelBackground: "#fffefb" },
+  flowchart: { curve: "linear", padding: 14, nodeSpacing: 50, rankSpacing: 64 },
+});
+await mermaid.run();
+
+// Keyboard access: clickable nodes are tabbable buttons.
+// DOM ids are "flowchart-<nodeId>-<counter>" (mermaid 11.x internal — why the version is pinned).
+const domToNodeId = el => el.id.replace(/^flowchart-/, "").replace(/-\d+$/, "");
+document.querySelectorAll(".mermaid .node.clickable").forEach(n => {
+  n.setAttribute("tabindex", "0");
+  n.setAttribute("role", "button");
+  n.addEventListener("keydown", e => {
+    if (e.key === "Enter" || e.key === " ") { e.preventDefault(); nodeDetail(domToNodeId(n)); }
+  });
+});
+
+// Integrity check: every clickable node needs a DETAILS entry and vice versa.
+const clickIds = [...document.querySelectorAll(".mermaid .node.clickable")].map(domToNodeId);
+for (const id of clickIds) if (!DETAILS[id]) console.error(`flow-chart: click binding "${id}" has no DETAILS entry`);
+for (const id of Object.keys(DETAILS)) if (!clickIds.includes(id)) console.error(`flow-chart: DETAILS entry "${id}" has no click binding`);
+
+// Print appendix: full details in document order.
+const app = document.createElement("section");
+app.className = "appendix";
+app.innerHTML = "<h2>Stage details</h2>" +
+  Object.values(DETAILS).map(d => `<h3>${d.title}</h3>${d.body}`).join("");
+document.body.append(app);
+
+// Demonstrate the interaction: first DETAILS entry pre-selected (no scroll on load).
+nodeDetail(Object.keys(DETAILS)[0], false);
+</script>
+</body>
+</html>
