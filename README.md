@@ -6,6 +6,8 @@ Personal collection of Claude Code skills — authored, documented, and refined 
 
 | Skill | Description |
 |-------|-------------|
+| [adversarial-check](skills/adversarial-check/) | Fresh-context adversarial agents (skeptic, verifier, rival) attack a Claude output; bounded revision rounds, dissent reported |
+| [flowchart](skills/flowchart/) | Purpose-level HTML flowcharts with hover tooltips and click-to-expand detail panels |
 | [grill-me](skills/grill-me/) | Relentless interview about a plan or design until shared understanding is reached |
 | [grill-with-docs](skills/grill-with-docs/) | Grilling session that also sharpens terminology and updates CONTEXT.md / ADRs inline |
 | [set-academic-env](skills/set-academic-env/) | Scaffolds the AcademicPaperWriter harness into a new paper repository |
