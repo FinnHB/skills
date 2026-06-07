@@ -12,7 +12,7 @@ An output is under check — a plan, analysis, set of findings, or conclusion; u
 - **Artifact**: the thing under attack — usually your most recent substantive output, or whatever the user names. If ambiguous, ask. Note who owns it: your own output gets revised when objections land (§4); a user-authored artifact gets findings reported, never edits, unless they ask. Freeze the version under attack — no edits while agents are reading it.
 - **Claim**: restate the artifact's core claim in one sentence, ending with what it would mean for it to be *wrong*. If you can't, the artifact isn't checkable yet — say so and tighten it first.
 - **Effort** (proportional; don't burn a panel on a trivial check):
-  - **light** — Skeptic only; add the Verifier if the artifact makes checkable factual claims. One attack round (a material revision still triggers the §5 re-check). Default for self-contained outputs with limited blast radius.
+  - **light** — Skeptic only; add the Verifier if the artifact makes checkable factual claims. One attack round (a material revision still triggers the §5 re-check; capped at 2 rounds). Default for self-contained outputs with limited blast radius.
   - **full** — all three roles, up to 3 rounds. Default for plans, analyses, and conclusions that decisions will be built on.
 
 ## 2. Blinding protocol — never break it
@@ -49,7 +49,7 @@ Rival divergence triages by materiality: a different claim, number, or outcome i
 
 - Material revisions trigger ONE re-check round in any mode: a **new** Skeptic, cold, on the revised artifact — plus a new Verifier scoped to the claims the revision introduced or changed, never re-verifying what an earlier round already confirmed with citations. Never reuse an agent across rounds — it now carries the debate history, which is exactly the contamination this skill exists to remove.
 - A round ends when every objection is conceded (revision), retired (a fresh adjudicator endorsed the rebuttal), or booked as dissent.
-- **Hard cap: 3 rounds.** Still contested at the cap → ship with the dissent in the report. An unresolved objection is a finding, not a failure. An objection conceded in the final round still gets its revision, but that revision ships un-rechecked and is flagged as such in Caveats.
+- **Hard cap: 3 rounds (light mode: 2).** Still contested at the cap → ship with the dissent in the report. An unresolved objection is a finding, not a failure. An objection conceded in the final round still gets its revision, but that revision ships un-rechecked and is flagged as such in Caveats.
 
 ## 6. Report
 
@@ -57,7 +57,8 @@ Agents' final messages are not surfaced to the user by default — the report is
 
 ```
 ## Adversarial check — <one-line claim>
-**Verdict:** upheld | revised | overturned   (N rounds, M agents)
+**Verdict:** upheld | revised | overturned
+**Stats** — N rounds, M agents (model); ~subagent tokens, wall time; objections: conceded / rebutted / dissent
 
 **Survived** — what stood unchanged, and which attacks it withstood
 **Revised** — what changed, and which objection forced each change

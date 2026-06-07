@@ -1,5 +1,9 @@
 # Changelog — adversarial-check
 
+## 2026-06-07 (v0.4.0)
+- Light mode capped at 2 rounds (user decision, from the v0.3.1 round-value ledger: round 2 catches triage errors the orchestrator introduced — the unique value of the loop — while round 3 yielded only negative assurance at 13.6k tokens and two factually wrong objections). Full mode keeps 3. §5's final-round flag rule already generalizes to whichever cap applies, so a light round-2 concession ships flagged un-rechecked.
+- §6 report template gains one Stats line — rounds, agents (model), subagent tokens, wall time, objections conceded/rebutted/dissent (user request after the v0.3.1 report). Free to fill: the harness returns `subagent_tokens` and `duration_ms` with every spawn. Net SKILL.md delta for both changes: +21 words.
+
 ## 2026-06-07 (v0.3.1)
 - Conciseness pass via a light self-check (3 rounds, 4 sonnet agents, ~56k subagent tokens — the first run on the v0.3.0 sonnet-panel defaults). Net −61 words (1460→1399): cut the §2 distortion rationale, the §3 cost/diversity rationale, §4's "goal is a correct output" framing, and §5's "cap overrides" label — all classified justification-only by both the attacking Skeptic and an equivalence Verifier given before/after texts. Operative rationale (e.g. "an omitted constraint shares its cause with the very misreading under test", the compaction metaphor) stayed: it disambiguates execution; the cut clauses' whys live here and in the README.
 - The fifth cut was reversed by the panel itself: round 1's Skeptic called §1's "material revisions always get the §5 re-check" sentence true duplication; the equivalence Verifier classified the cut as operative loss (the §1↔§5 binding exists nowhere else). Conceded to the Verifier in compressed form — a §1 parenthetical at ~40% of the original sentence's length. The skill's roles disagreeing with each other and the orchestrator siding on evidence is the mechanism working as designed.
