@@ -13,6 +13,7 @@ Personal collection of Claude Code skills — authored, documented, and refined 
 | [set-academic-env](skills/set-academic-env/) | Scaffolds the AcademicPaperWriter harness into a new paper repository |
 | [init-claude-permissions](skills/init-claude-permissions/) | Creates a project `.claude/settings.json` with Python/geospatial auto-approval permissions |
 | [set-python-env](skills/set-python-env/) | Bootstraps a Python project and loads session coding principles |
+| [snap-site](skills/snap-site/) | Screenshots local dev-server pages at multiple viewport widths (headless Chromium) so Claude can visually verify web UI changes |
 
 ## Layout & conventions
 
