@@ -16,6 +16,7 @@ Personal collection of Claude Code skills — authored, documented, and refined 
 | [init-claude-permissions](skills/init-claude-permissions/) | Creates a project `.claude/settings.json` with Python/geospatial auto-approval permissions |
 | [set-python-env](skills/set-python-env/) | Bootstraps a Python project and loads session coding principles |
 | [snap-site](skills/snap-site/) | Screenshots local dev-server pages at multiple viewport widths (headless Chromium) so Claude can visually verify web UI changes |
+| [writing-great-skills](skills/writing-great-skills/) | Matt Pocock's reference on writing predictable skills (vendored, MIT) — project-local only, active just inside this repo |
 
 ## Layout & conventions
 
@@ -35,6 +36,12 @@ ln -s "$(pwd)/skills/<name>" ~/.claude/skills/<name>
 ```
 
 To add a new skill: create `skills/<name>/SKILL.md` (+ README + CHANGELOG), symlink it as above, then commit.
+
+Skills that should only be active inside this repo (e.g. [writing-great-skills](skills/writing-great-skills/)) are instead symlinked into the project-local `.claude/skills/`:
+
+```bash
+ln -s ../../skills/<name> .claude/skills/<name>
+```
 
 ## Refining a skill
 
