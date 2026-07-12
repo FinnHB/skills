@@ -3,7 +3,7 @@ name: flowchart
 description: Create HTML flowcharts and process diagrams with hover tooltips and click-to-expand details. Use when users ask for a flowchart, process diagram, workflow visualization, decision tree, or a visual of how a script/system/process works. Output is at purpose-level, not a code transcription. An explicit "deep" request adds linked per-stage drill-down charts.
 allowed-tools: Bash, Read, Write, Edit
 metadata:
-  version: "0.10.2"
+  version: "0.10.3"
 ---
 
 # Flow Chart
@@ -18,7 +18,11 @@ Chart exactly what the user named: a component → that component's process; a w
 
 1. One-sentence purpose statement (becomes the page subtitle): who reads this, what question it answers.
 2. List atomic steps, then merge consecutive steps serving one purpose into a stage named by its outcome ("copy templates / copy hooks / create dirs" → "Set up project structure"). State the stage list in your response, then proceed — don't wait for approval. (An explicit "deep" request → state the full chart tree per §7 instead.)
-3. Hard budget: **≤9 stages (never pad a short process), ≤12 nodes total (start/end/stops/diamonds included), ≤3 diamonds.** Over budget = wrong altitude: merge harder, or apply the **drill-down convention** — chart the stage separately under the same budget. More than one chart in the plan makes a **set**, and a set lives in its own directory `<kebab-slug>-flowchart/`: the root chart is `index.html`, its children are `<stage-slug>.html`, and deeper children extend their parent's filename (`validate-sentence.html` → `validate-sentence-coverage-check.html`), so child filenames are fixed before writing. Chart count is known when the plan is stated, so flat file vs set directory is decided before anything is written. The drill-down must be visible without clicking: suffix the parent node label with ⤵, add its legend chip, and make the link the FIRST line of the stage's detail entry ("→ Open this stage's own chart") — buried-last links fail the 30-second test. The child's start node is the way back up: prefix its label ↰, link it to the parent, and give it the FIRST `DETAILS` entry naming the parent — exact click binding, chip markup, and child-chart slot patterns live in the template header.
+3. **Hard budget: ≤9 stages (never pad a short process), ≤12 nodes total (start/end/stops/diamonds included), ≤3 diamonds.** Over budget = wrong altitude: merge harder, or apply the **drill-down convention** (chart the stage separately under the same budget). Chart count is known when the plan is stated, so flat file vs set directory is decided before anything is written:
+   - **Sets & filenames.** More than one chart makes a **set**, living in its own directory `<kebab-slug>-flowchart/`: the root chart is `index.html`, children are `<stage-slug>.html`, and deeper children extend their parent's filename (`validate-sentence.html` → `validate-sentence-coverage-check.html`) — so child filenames are fixed before writing.
+   - **Drill-down visible without clicking (parent side):** suffix the parent node label with ⤵, add its legend chip, and make the link the FIRST line of the stage's detail entry ("→ Open this stage's own chart") — buried-last links fail the 30-second test.
+   - **Up-link (child side):** the child's start node is the way back up — prefix its label ↰, link it to the parent, and give it the FIRST `DETAILS` entry naming the parent.
+   - Exact click binding, chip markup, and child-chart slot patterns live in the template header.
 
 ## 3. Labels
 

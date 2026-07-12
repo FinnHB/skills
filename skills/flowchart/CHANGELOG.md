@@ -1,5 +1,10 @@
 # Changelog — flowchart
 
+## 2026-07-12 (v0.10.3)
+Follow-up to the rubric pass: broke §2.3's co-location wall. The ~230-word paragraph that fused seven distinct rules (budget, over-budget action, set directory + filenames, flat-vs-set timing, parent-side drill-down affordance, child-side up-link, template-header pointer) is now the budget line plus labelled sub-bullets — **Sets & filenames**, **Drill-down visible without clicking (parent side)**, **Up-link (child side)**, and the template-header pointer. Every rule, glyph (⤵ / ↰), and the 30-second-test rationale preserved verbatim; `§2.3` cross-references elsewhere still resolve (it remains item 3 of §2). No behaviour change.
+
+Leading-word consolidation (reviewer's other flowchart item) considered and **not** done: "altitude" (granularity/zoom) and "outcome not mechanism" (label phrasing) are genuinely distinct concepts, not one idea named twice, so collapsing them would lose meaning rather than sharpen a leading word.
+
 ## 2026-07-12 (v0.10.2)
 Rubric pass against `writing-great-skills`, part of a repo-wide review. Description-only change: dropped "readable by a newcomer in 30 seconds" from the frontmatter description — it duplicated the body's opening line and did no trigger work (context load paid every turn). "purpose-level" stays as the invocation-anchoring term. No behaviour change.
 

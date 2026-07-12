@@ -13,7 +13,6 @@ Personal collection of Claude Code skills — authored, documented, and refined 
 | [grill-with-docs](skills/grill-with-docs/) | Grilling session that also sharpens terminology and updates CONTEXT.md / ADRs inline |
 | [set-academic-env](skills/set-academic-env/) | Scaffolds the AcademicPaperWriter harness into a new paper repository |
 | [init-backlog](skills/init-backlog/) | Scaffolds a commit-traceable backlog (BACKLOG.md + BACKLOG_DONE.md) and a Definition-of-Done maintenance rule in CLAUDE.md |
-| [init-claude-permissions](skills/init-claude-permissions/) | Creates a project `.claude/settings.json` with Python/geospatial auto-approval permissions |
 | [set-python-env](skills/set-python-env/) | Bootstraps a Python project and loads session coding principles |
 | [snap-site](skills/snap-site/) | Screenshots local dev-server pages at multiple viewport widths (headless Chromium) so Claude can visually verify web UI changes |
 | [writing-great-skills](skills/writing-great-skills/) | Matt Pocock's reference on writing predictable skills (vendored, MIT) — project-local only, active just inside this repo |
