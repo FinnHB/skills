@@ -1,5 +1,23 @@
 # Changelog
 
+## 0.4.1 — 2026-07-04
+
+Structure pass against an external rubric (mattpocock/skills → `writing-great-skills`), run
+ad hoc at the user's request. `panel.py`, tests, and evals untouched.
+
+- **Privacy gate moved above Usage.** It sat below the run command, so a top-down execution
+  could fire the first send before reaching the confirmation step. Page order now matches
+  execution order: setup check → privacy → run → synthesise.
+- **`--council` disclosed to `references/council.md`** (mechanics, when-to-use, round-2
+  synthesis guidance — a branch only some runs reach); SKILL.md keeps an 8-line pointer
+  carrying the trigger conditions and the 2x-cost warning. ~30 lines off the always-loaded
+  file.
+- **Description trimmed:** council mechanics cut (identity already in the body), and the
+  "outside view / second opinion / cross-model critique" synonym run collapsed to one
+  trigger.
+- Considered, deliberately unchanged: the Usage flag list overlaps `panel.py --help`, but it
+  carries semantics argparse doesn't (cost-gate threshold, truncation guidance), so it stays.
+
 ## 0.4.0 — 2026-07-02
 
 Defect-fix + `--council` peer-review round, derived from a live code review plus real billed

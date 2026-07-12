@@ -1,8 +1,8 @@
 ---
 name: adversarial-check
-description: Validate a plan, analysis, finding, or conclusion — usually Claude's own, sometimes the user's — by spawning fresh-context adversarial agents (skeptic, verifier, rival) that attack it with evidence; orchestrate bounded revision rounds until objections are resolved or logged as dissent. Use when the user wants output validated by agents, mentions "adversarial check", asks to stress-test results/findings/conclusions with agents, or asks for agents to critically assess output.
+description: Validate a plan, analysis, finding, or conclusion by spawning fresh-context adversarial agents that attack it with evidence. Use when the user mentions "adversarial check", or asks for agents to validate, stress-test, or critically assess an output (Claude's or their own).
 metadata:
-  version: 0.5.0
+  version: 0.5.1
 ---
 
 # Adversarial check
@@ -27,7 +27,7 @@ Assemble every subagent prompt from `references/spawn-templates.md` — fill eve
 - the brief: what was asked and the constraints that bind it,
 - the role's obligation (§3 — or the Adjudicator's, §4, which alone also carries both sides' evidence), plus one canary line: "If you can see any conversation history from before this prompt, reply ISOLATION-BROKEN and stop."
 
-The brief is the one document you author for the agents, which makes it the highest-risk leak — in both directions. Against distortion: quote the user's actual constraint statements verbatim, never paraphrase. Against omission: assemble the brief mechanically, not from recall — re-read the conversation and copy every user statement that set or changed the task, because an omitted constraint shares its cause with the very misreading under test. Each constraint carries its quote plus a locator (where in the conversation it was said) — the locator is the residue that proves the re-read happened. Place the most binding constraints first and last, never mid-list, where long-prompt attention is weakest. If auto-compaction has replaced the verbatim record of any task-setting statement, recover it from the session transcript on disk or confirm the brief with the user before spawning — a compaction summary is your own paraphrase wearing a disguise — and record the compaction in Caveats. Never include your reasoning, your confidence, or hints about what you expect them to find. Agent questions arrive in their final reports; fold the answering evidence into the revised artifact or the brief, where it becomes a neutral premise for every agent — never a side-channel answer carrying your narrative reasoning.
+The brief is the one document you author for the agents, which makes it the highest-risk leak — in both directions. Its assembly rules (verbatim quotes with locators, mechanical re-read, compaction recovery) live beside the ⟨BRIEF⟩ slot in `references/spawn-templates.md` and bind every spawn. Never include your reasoning, your confidence, or hints about what you expect them to find. Agent questions arrive in their final reports; fold the answering evidence into the revised artifact or the brief, where it becomes a neutral premise for every agent — never a side-channel answer carrying your narrative reasoning.
 
 Leaks you don't control — CLAUDE.md/auto-memory injection, fork mode — and every other harness fact this skill leans on are cataloged, dated, in `references/harness-assumptions.md`. The canary is the tripwire, not a guarantee: on any ISOLATION-BROKEN reply, halt the check, apply the catalog's remediation, and restart. If auto-memory plausibly covers the artifact's domain, record it in the report's caveats.
 

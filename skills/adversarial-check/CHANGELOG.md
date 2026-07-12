@@ -1,5 +1,12 @@
 # Changelog — adversarial-check
 
+## 2026-07-04 (v0.5.1)
+Pruning pass against an external rubric (mattpocock/skills → `writing-great-skills`), run ad hoc at the user's request. No protocol changes.
+
+- **Description halved.** The mechanism recap (role names, bounded rounds) duplicated the body, and three of the four triggers were one branch renamed ("validated by agents" / "stress-test with agents" / "critically assess output") — collapsed to one. The description is context load paid every turn of every session.
+- **§2's brief-assembly mechanics moved to `references/spawn-templates.md`** (new "Assembling the ⟨BRIEF⟩" section) — the file every spawn already opens, so the material sits one rung down the ladder without leaving the execution path. This also ended the near-duplication with the six ⟨BRIEF⟩ slot annotations, which now point at the one section (single source of truth). §2 keeps the leak principle, the blinding rule, and the pointer.
+- **Considered, deliberately unchanged:** §3's role summaries alongside the templates' verbatim obligations is two-tier redundancy by design (summary at the orchestrator's reading tier, verbatim at the spawn tier), not sediment — the rubric would call it duplication; we keep it.
+
 ## 2026-07-02 (v0.5.0)
 Output of an orchestrated external review (user request): three parallel research agents — an opus literature survey of multi-agent debate / LLM-critique research, a docs agent verifying every hard-coded harness fact, an opus red-team hunting failure modes not already in this changelog — plus the orchestrator's own repo review. Changes by cluster:
 

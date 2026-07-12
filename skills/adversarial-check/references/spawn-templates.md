@@ -2,6 +2,16 @@
 
 Copy the template, fill every ⟨slot⟩, delete nothing. Every template ends with the canary — a spawn prompt without it is malformed.
 
+## Assembling the ⟨BRIEF⟩
+
+The brief is what was asked and the constraints that bind it. Every ⟨BRIEF⟩ slot below is filled by these rules:
+
+- **Against distortion:** quote the user's actual constraint statements verbatim, never paraphrase.
+- **Against omission:** assemble mechanically, not from recall — re-read the conversation and copy every user statement that set or changed the task, because an omitted constraint shares its cause with the very misreading under test.
+- Each constraint carries its quote plus a locator (where in the conversation it was said) — the locator is the residue that proves the re-read happened.
+- Place the most binding constraints first and last, never mid-list, where long-prompt attention is weakest.
+- If auto-compaction has replaced the verbatim record of any task-setting statement, recover it from the session transcript on disk or confirm the brief with the user before spawning — a compaction summary is your own paraphrase wearing a disguise — and record the compaction in the report's Caveats.
+
 ## Skeptic
 
 ```
@@ -9,7 +19,7 @@ Copy the template, fill every ⟨slot⟩, delete nothing. Every template ends wi
 
 ⟨CLAIM — the §1 restatement, one sentence, ending with what it would mean to be wrong⟩
 
-⟨BRIEF — each constraint as the user's quoted words + where in the conversation it was said; most binding constraints first and last⟩
+⟨BRIEF — assembled per "Assembling the ⟨BRIEF⟩" above⟩
 
 Your job is to falsify this. An objection counts only if you name what is wrong AND show the evidence: file:line, command output, a redone computation, a cited source. Strongest first, five objections at most, severity ranked by how directly each hits the stated claim; for each, propose the smallest fix. If you hit the cap with more findings remaining, say "objection budget saturated". List unsubstantiated unease separately as soft concerns. If you find nothing substantiated, say exactly that — do not manufacture objections to look thorough.
 
@@ -23,7 +33,7 @@ If you can see any conversation history from before this prompt, reply ISOLATION
 
 ⟨CLAIM — the §1 restatement, one sentence, ending with what it would mean to be wrong⟩
 
-⟨BRIEF — each constraint as the user's quoted words + where in the conversation it was said; most binding constraints first and last⟩
+⟨BRIEF — assembled per "Assembling the ⟨BRIEF⟩" above⟩
 
 First list the artifact's checkable claims and how you will check each — before reading the artifact's supporting reasoning. Then check each against ground truth: run the code, read the files, redo the numbers, search for external claims. Report each as: confirmed / contradicted (with evidence) / no counterexample found (universal and absence claims — weaker than confirmed) / self-referential (the only available ground truth is the artifact's own effect — never book as confirmed) / unverified by asymmetry (the author had access you lack) / uncheckable. Do not editorialize — verify.
 
@@ -37,7 +47,7 @@ A §5 re-check Verifier gets one appended scope sentence, inserted before the ca
 Brief only — no artifact. Skip the role (and say so in the report) if the artifact is discoverable where the Rival must look — applied to the worktree, saved in the repo — or if auto-memory covers its domain; memory injects before the Rival looks anywhere, so independence is unenforceable in either case.
 
 ```
-⟨BRIEF — each constraint as the user's quoted words + where in the conversation it was said; most binding constraints first and last⟩
+⟨BRIEF — assembled per "Assembling the ⟨BRIEF⟩" above⟩
 
 Produce your own best answer to this.
 
@@ -53,7 +63,7 @@ Carries the artifact, the brief, the objection as the Skeptic's report section I
 
 ⟨CLAIM — the §1 restatement, one sentence, ending with what it would mean to be wrong⟩
 
-⟨BRIEF — each constraint as the user's quoted words + where in the conversation it was said; most binding constraints first and last⟩
+⟨BRIEF — assembled per "Assembling the ⟨BRIEF⟩" above⟩
 
 ⟨OBJECTION — the Skeptic's report section, in full, verbatim⟩
 
@@ -75,7 +85,7 @@ This is the default adjudication path (§4); use the Local Adjudicator template 
 ⟨the claim being adjudicated, one sentence⟩
 
 # Brief
-⟨BRIEF — each constraint as the user's quoted words + where in the conversation it was said⟩
+⟨BRIEF — assembled per "Assembling the ⟨BRIEF⟩" above⟩
 
 # Artifact
 ⟨ARTIFACT — verbatim, or its relevant excerpt⟩
