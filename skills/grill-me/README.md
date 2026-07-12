@@ -1,6 +1,8 @@
 # grill-me
 
-Relentless interview about a plan or design. Claude walks down each branch of the decision tree, asking one question at a time (with its recommended answer) until you reach shared understanding. Questions answerable from the codebase are answered by exploring it instead.
+Relentless interview about a plan or design. Claude walks down each branch of the decision tree, asking one question at a time (with its recommended answer) until every surfaced decision has a recorded answer and none still depends on an unresolved one. Questions answerable from the codebase are answered by exploring it instead.
+
+The interview loop lives in [`interview-loop.md`](interview-loop.md) — its single source of truth, shared with [grill-with-docs](../grill-with-docs/), which layers a domain-model pass on top of the same loop.
 
 ## Usage examples
 

@@ -2,10 +2,8 @@
 name: set-python-env
 description: Set up a Python project environment (venv, folders, .gitignore, requirements.txt, README) and load Python coding principles for the session. Use when starting a new Python project or when the user wants the session to follow their Python conventions.
 metadata:
-  version: "1.0.0"
+  version: "1.0.1"
 ---
-
-Set up a Python project environment and load coding principles for this session.
 
 ## Phase 1 — Environment Setup
 
@@ -87,17 +85,14 @@ After completing setup, print a brief summary of what was found, what was create
 For the remainder of this session, follow these principles when writing any Python code:
 
 ### Virtual environment
-- Run all `python`, `pip`, and `pytest` commands using the project venv: `.venv/bin/python`, `.venv/bin/pip`, `.venv/bin/pytest`
-- Never install packages globally
+- Run all `python`, `pip`, and `pytest` commands through the project venv: `.venv/bin/python`, `.venv/bin/pip`, `.venv/bin/pytest`
 
 ### MVP first
 - Build the simplest working version before adding features or optimising
-- Before marking any task complete: run the code and confirm it produces the expected output
-- Never assume code works — validate it by running it
+- Before marking any task complete, run the code and confirm it produces the expected output
 
 ### Code architecture
 - One function = one responsibility; no function should do multiple unrelated things
-- Keep cross-script dependencies minimal and explicit
 - Decide deliberately what goes in `if __name__ == "__main__"` (entry point logic) vs what's importable (reusable functions/classes)
 - Use classes to group related state and behaviour when multiple scripts share the same data or logic
 
@@ -113,11 +108,10 @@ For the remainder of this session, follow these principles when writing any Pyth
 - Define magic numbers and strings as named constants at module level — never bury them in functions
 - Use `pathlib.Path` for all file paths, not raw strings
 - Use the `logging` module (with appropriate levels: `DEBUG`, `INFO`, `WARNING`, `ERROR`) instead of `print` for anything beyond throwaway debugging
-- Raise meaningful exceptions with context — no silent failures, no bare `except` clauses
+- Raise meaningful exceptions with context; catch specific exception types rather than a bare `except`
 
 ### Testing
 - Test files live in `tests/`, one per script: `tests/test_<module>.py`
-- Tests are cumulative — update them when code changes, remove them when a feature is removed
 - Use pytest markers to allow selective test runs:
   ```python
   @pytest.mark.core
@@ -128,7 +122,6 @@ For the remainder of this session, follow these principles when writing any Pyth
 
 ### Dependencies
 - Pin all versions in `requirements.txt` (e.g. `numpy==1.26.4`)
-- Prefer the standard library over third-party packages where reasonable
 
 ### README maintenance
 - Update the `README.md` Scripts table whenever a new script or test file is created or removed

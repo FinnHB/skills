@@ -1,11 +1,11 @@
 ---
 name: init-claude-permissions
-description: Create or update a project-level .claude/settings.json with auto-approval permissions for Python/geospatial development. Use when starting work in a new project and the user wants sensible default permissions configured.
+description: Create or update a project-level .claude/settings.json with auto-approval permissions for Python development. Use when starting a Python project and the user wants sensible default permissions configured.
 metadata:
-  version: "1.0.0"
+  version: "1.0.1"
 ---
 
-Create a `.claude/settings.json` file in the current project root with auto-approval permissions configured for Python/geospatial development.
+Create a `.claude/settings.json` file in the current project root with auto-approval permissions configured for Python development.
 
 The file should contain:
 ```json
@@ -95,4 +95,4 @@ Steps:
      c. **Cancel** — leave the file unchanged
    - Only proceed once the user selects an option and confirms
 3. If it doesn't exist, create `.claude/` directory if needed, then create the file with the content above
-4. Confirm the file was created or updated successfully
+4. Re-read the written file and confirm it is valid JSON containing both the `allow` and `deny` blocks

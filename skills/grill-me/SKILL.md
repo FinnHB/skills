@@ -1,10 +1,6 @@
 ---
 name: grill-me
-description: Interview the user relentlessly about a plan or design until reaching shared understanding, resolving each branch of the decision tree. Use when user wants to stress-test a plan, get grilled on their design, or mentions "grill me".
+description: Interview the user relentlessly about a plan or design, resolving each branch of the decision tree one question at a time. Use when the user wants to be grilled on a plan or design with no project docs to grill against, or mentions "grill me". (To grill against a project's documented domain model, use grill-with-docs.)
 ---
 
-Interview me relentlessly about every aspect of this plan until we reach a shared understanding. Walk down each branch of the design tree, resolving dependencies between decisions one-by-one. For each question, provide your recommended answer.
-
-Ask the questions one at a time.
-
-If a question can be answered by exploring the codebase, explore the codebase instead.
+Run the shared interview loop in [interview-loop.md](interview-loop.md). That is the whole skill — grill-me is the loop with nothing added.

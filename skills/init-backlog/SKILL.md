@@ -1,9 +1,9 @@
 ---
 name: init-backlog
-description: Set up a lightweight, ID-tracked backlog system in the current repo — BACKLOG.md (open work) + BACKLOG_DONE.md (shipped/dropped ledger) + a "Definition of Done" maintenance rule injected into CLAUDE.md. Use when a project has no real backlog (no issue tracker, scattered TODOs/planning docs) and the user wants durable, commit-traceable tracking that Claude keeps in sync. Idempotent.
+description: Backlog system for a repo — BACKLOG.md + BACKLOG_DONE.md plus a Definition-of-Done maintenance rule in CLAUDE.md. Use when a project has no real backlog (no issue tracker, scattered TODOs/planning docs) and the user wants durable, commit-traceable tracking that Claude keeps in sync. Idempotent.
 allowed-tools: Bash, Read, Write, Edit
 metadata:
-  version: "1.0.0"
+  version: "1.0.1"
 ---
 
 # init-backlog
@@ -69,21 +69,15 @@ rather than empty. Harvest from, in order:
 - open issues if a tracker exists.
 
 For each genuine deferred item, mint the next `BL-NN`, write a one-paragraph entry, and
-score it `‹V· F· C· E· → (V×F×C)÷E›`. Put a `see docs/…` pointer on anything that has a
+score it `‹V· F· C· E· → (V×F×C)÷E›` using the scale documented in the header of the
+`BACKLOG.md` you just wrote (Step 2). Put a `see docs/…` pointer on anything that has a
 deeper design doc rather than copying the detail in. Sort each theme highest-score first.
 Confirm the harvested set with the user before writing — do not invent work.
 
 ### 5. Verify
 
-Show the two files and the appended CLAUDE.md section. Do **not** commit unless the
-user asks; if they do, use a message like `chore: add BACKLOG.md tracking system`.
-
-## Scoring reference (for seeding)
-
-`score = (Value × Frequency × Confidence) ÷ Effort`, each rated 1–5. It's a sort key,
-not an absolute.
-
-- **Value** — how much better this makes the tool / how much it's wanted.
-- **Frequency** — how often it's actually hit (5 = every session, 1 = rare edge case).
-- **Confidence** — how sure it'll work and is scoped right (5 = trivial, 1 = research spike).
-- **Effort** — 1 = <1 hr, 2 = a few hrs, 3 = a day, 4 = a few days, 5 = a week+.
+Confirm both files landed and the CLAUDE.md rule is present exactly once: `BACKLOG.md` and
+`BACKLOG_DONE.md` exist at the repo root, neither still contains the literal `{{PROJECT}}`
+placeholder, and `grep -c "Backlog maintenance" CLAUDE.md` returns 1. Then show the two
+files and the appended CLAUDE.md section. Do **not** commit unless the user asks; if they
+do, use a message like `chore: add BACKLOG.md tracking system`.

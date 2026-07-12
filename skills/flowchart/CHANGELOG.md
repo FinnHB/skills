@@ -1,5 +1,10 @@
 # Changelog — flowchart
 
+## 2026-07-12 (v0.10.2)
+Rubric pass against `writing-great-skills`, part of a repo-wide review. Description-only change: dropped "readable by a newcomer in 30 seconds" from the frontmatter description — it duplicated the body's opening line and did no trigger work (context load paid every turn). "purpose-level" stays as the invocation-anchoring term. No behaviour change.
+
+Considered, not done in this pass: the central idea is still named several ways ("purpose-level" / "altitude" / "outcome not mechanism"); consolidating onto one leading word (`altitude`), and breaking the §2.3 wall into sub-bullets, are larger steering/readability edits left for a deliberate pass.
+
 ## 2026-06-07 (v0.10.1)
 - Skill renamed `flow-chart` → `flowchart` (user decision): "flowchart" is a single dictionary word, so kebab-case has nothing to hyphenate; the skill's own outputs were already unhyphenated (`<slug>-flowchart.html`, `<slug>-flowchart/`), disagreeing with the skill's name; and mermaid's own keyword is `flowchart`. Renamed: repo directory `skills/flowchart/`, the `~/.claude/skills` symlink, frontmatter `name:`, README heading + invocation examples, this changelog's heading, and the template's header comment + console.error prefixes (cosmetic — only affects charts generated from now on). The v0.2.0 entry's historical mention of the old name is left as the record it is (second rename in the skill's history: `flowchart-creator` → `flow-chart` → `flowchart`).
 

@@ -1,6 +1,6 @@
 # set-academic-env
 
-Bootstraps an AcademicPaperWriter paper repository in the current (or named) directory. Copies skills, hooks, commands, templates, and MCP wiring from the bundled `templates/` tree. Idempotent — safe to re-run to pick up harness updates.
+Bootstraps an AcademicPaperWriter paper repository in the current (or named) directory. Installs its skills, hooks, templates, and MCP wiring from the bundled `templates/` tree. Idempotent — safe to re-run to pick up harness updates.
 
 ## Files
 
@@ -26,3 +26,14 @@ Scaffold into a named target directory.
 
 - Initializing a new academic paper repository
 - Re-running in an existing paper repo to sync harness updates
+
+## Reinstalling / updating the skill
+
+After updating the harness source repo, refresh this skill with:
+
+```bash
+mkdir -p ~/.claude/skills/set-academic-env
+cp ~/Documents/AcademicPaperWriter/skills/set-academic-env/SKILL.md ~/.claude/skills/set-academic-env/
+cp ~/Documents/AcademicPaperWriter/skills/set-academic-env/install.sh ~/.claude/skills/set-academic-env/
+cp -r ~/Documents/AcademicPaperWriter/templates ~/.claude/skills/set-academic-env/
+```

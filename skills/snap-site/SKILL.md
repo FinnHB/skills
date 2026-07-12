@@ -32,8 +32,9 @@ node <skill-dir>/snap.mjs \
 All flags are optional. Defaults: `--url http://localhost:1313`, `--paths /`, `--widths 1920,768,375`, `--out ./.screenshots`.
 
 3. The script prints one line per screenshot written, then a `CONSOLE ERRORS` section (empty means clean).
-4. **Read the PNGs** (they are images — use the Read tool) and judge the result against what the change was supposed to do. Don't skip this; the screenshots are the point.
-5. If the output dir is inside a git repo, make sure it's gitignored before committing anything.
+4. **Read every PNG the script wrote** — one per path × width — with the Read tool, and account for each viewport before judging the change done; a layout that passes at 1920w often breaks at 375w. Reading them is the step, not an optional check.
+5. **Resolve the `CONSOLE ERRORS` section.** The run is done only when it is empty or every entry is explained; a non-empty section is a failure to fix, not a note to skip past.
+6. If the output dir is inside a git repo, make sure it's gitignored before committing anything.
 
 ## Notes
 
