@@ -11,6 +11,7 @@ Personal collection of Claude Code skills — authored, documented, and refined 
 | [flowchart](skills/flowchart/) | Purpose-level HTML flowcharts with hover tooltips and click-to-expand detail panels |
 | [grill-me](skills/grill-me/) | Relentless interview about a plan or design until shared understanding is reached |
 | [grill-with-docs](skills/grill-with-docs/) | Grilling session that also sharpens terminology and updates CONTEXT.md / ADRs inline |
+| [orchestrate](skills/orchestrate/) | Makes the session model a pure orchestrator — decomposes a task into independent legs, delegates each to the right-tier subagent, choreographs the waves, verifies, and synthesises; never executes the work itself |
 | [set-academic-env](skills/set-academic-env/) | Scaffolds the AcademicPaperWriter harness into a new paper repository |
 | [init-backlog](skills/init-backlog/) | Scaffolds a commit-traceable backlog (BACKLOG.md + BACKLOG_DONE.md) and a Definition-of-Done maintenance rule in CLAUDE.md |
 | [set-python-env](skills/set-python-env/) | Bootstraps a Python project and loads session coding principles |
