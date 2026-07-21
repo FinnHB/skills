@@ -2,8 +2,6 @@
 
 The questions live inside the HTML Claude is already producing — radio boxes, checkboxes, free-text fields — served on localhost. You fill it in, hit Submit, and the answers land back in the session automatically. No returning to the terminal to type out which answer went with which question.
 
-![A document in the left pane with the questions about it beside it](screenshot.png)
-
 ## When it fires
 
 Claude Code's built-in `AskUserQuestion` already covers up to 4 questions with 2–4 options each, so this skill is scoped to where that runs out:
@@ -18,7 +16,7 @@ Model-invoked on those conditions, and `/interactive-html` when you want to forc
 
 Chosen by the shape of the material, not the number of questions:
 
-- **Panel** (above) — one document, several questions about it as a whole. The file renders in a left pane, questions beside it.
+- **Panel** — one document, several questions about it as a whole. The file renders in a left pane, questions beside it.
 - **Inline** — questions each attached to a different part of the material. `prose` blocks and questions interleave in one column, so each question sits under the thing it asks about. A section-by-section review wants this.
 
 ## How the answers get back
@@ -37,7 +35,12 @@ python3 form.py spec.json answers.json   (background)
                      exit re-invokes Claude, which reads the file
 ```
 
-Claude never polls and never blocks — the background process ending *is* the notification. Waits indefinitely by default; `--timeout-min N` adds a deadline (exit code 2).
+Claude never polls and never blocks — the background process ending *is* the notification.
+
+Closing the tab also ends it (exit 3) — a reload doesn't, since the server waits to see whether the
+page comes back. Otherwise it waits indefinitely; `--timeout-min N` adds a deadline (exit 2). The
+rendered page is saved next to the answers as `<answers-stem>.page.html`, and spec and answers live
+in `.interactive-html/` in the project, so a page you closed by accident is recoverable.
 
 ## Spec format
 

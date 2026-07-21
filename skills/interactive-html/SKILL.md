@@ -16,7 +16,7 @@ A review that walks section by section is inline; a chart with five decisions ha
 
 ## 2. Write the spec
 
-Write `spec.json` to the scratchpad. Its schema is the docstring at the top of [form.py](form.py) — read that before writing your first spec.
+Write `spec.json` into `.interactive-html/` in the project, not the scratchpad — the page outlives the session there, so a closed tab is recoverable. Create the directory, and add it to `.gitignore` if the project tracks one. Its schema is the docstring at the top of [form.py](form.py) — read that before writing your first spec.
 
 What makes the page worth opening:
 
@@ -40,3 +40,5 @@ Read `answers.json`; its keys are the question ids.
 
 - An absent key is an unanswered optional question. Read it as "no preference", pick the sensible default, and say which default you took — a second round of asking is the thing this skill exists to avoid.
 - Free text in `Other` beats a selected option when the two disagree.
+- **Exit 3 means the tab was closed with nothing submitted.** The rendered page is kept at `<answers-stem>.page.html`. Carry on with your own judgement and say so, offering that file to reopen — re-serving uninvited turns a dismissal into a loop.
+- A follow-up question needs a fresh page: one submission closes a server for good.

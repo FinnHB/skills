@@ -3,8 +3,12 @@
 
     python3 form.py spec.json answers.json [--port 0] [--timeout-min 0]
 
-Prints the URL on stdout, then blocks. Exits 0 once the form is submitted and
-answers.json is written; 2 if --timeout-min is set and elapses. Stdlib only.
+Prints the URL on stdout, then blocks. The rendered page is saved next to the
+answers file as <answers-stem>.page.html, so a closed tab is recoverable.
+
+Exit codes: 0 submitted (answers written) | 2 --timeout-min elapsed
+           | 3 tab closed without submitting (a reload does not count).
+Stdlib only.
 
 Two layouts, chosen by whether "document" is present:
 
@@ -160,6 +164,9 @@ document.addEventListener('keydown', e => {
   if ((e.metaKey || e.ctrlKey) && e.key === 'Enter') submit();
 });
 window.addEventListener('load', tally);
+// Closing the tab releases the server. A reload also fires this, so the server
+// waits a moment for the page to come back before it acts on it.
+window.addEventListener('pagehide', () => navigator.sendBeacon('/closed'));
 """
 
 
@@ -254,7 +261,19 @@ def main():
     if doc and not doc.exists():
         sys.exit(f"document not found: {doc}")
     page = render(spec, bool(doc)).encode()
-    submitted = threading.Event()
+
+    # The rendered page is kept next to the answers so a closed tab is recoverable:
+    # reopen this file to read it, or re-run with the same spec to serve it again.
+    saved = pathlib.Path(a.answers).with_suffix(".page.html")
+    saved.write_bytes(page)
+
+    done = threading.Event()
+    state = {"code": 0, "timer": None}
+
+    def cancel_close():
+        if state["timer"]:
+            state["timer"].cancel()
+            state["timer"] = None
 
     class Handler(http.server.BaseHTTPRequestHandler):
         def _send(self, code, body, ctype="text/html; charset=utf-8"):
@@ -268,17 +287,27 @@ def main():
             if self.path == "/document" and doc:
                 self._send(200, doc.read_bytes())
             elif self.path in ("/", "/index.html"):
+                cancel_close()  # the page is back — a reload, not a close
                 self._send(200, page)
             else:
                 self._send(404, b"not found")
 
         def do_POST(self):
+            if self.path == "/closed":
+                cancel_close()
+                state["timer"] = threading.Timer(
+                    3.0, lambda: (state.update(code=3), done.set())
+                )
+                state["timer"].start()
+                self._send(200, b"", "text/plain")
+                return
             raw = self.rfile.read(int(self.headers.get("Content-Length", 0)))
             pathlib.Path(a.answers).write_text(
                 json.dumps(json.loads(raw), indent=2, ensure_ascii=False) + "\n"
             )
+            cancel_close()
             self._send(200, b'{"ok":true}', "application/json")
-            submitted.set()
+            done.set()
 
         def log_message(self, *args):
             pass
@@ -286,10 +315,14 @@ def main():
     with socketserver.TCPServer(("127.0.0.1", a.port), Handler) as srv:
         url = f"http://127.0.0.1:{srv.server_address[1]}/"
         print(f"FORM READY {url}", flush=True)
+        print(f"FORM SAVED {saved}", flush=True)
         threading.Thread(target=srv.serve_forever, daemon=True).start()
-        if not submitted.wait(timeout=(a.timeout_min * 60) or None):
-            print("FORM TIMEOUT — no submission", flush=True)
+        if not done.wait(timeout=(a.timeout_min * 60) or None):
+            print(f"FORM TIMEOUT — no submission. Page kept at {saved}", flush=True)
             sys.exit(2)
+    if state["code"] == 3:
+        print(f"FORM CLOSED — tab shut without submitting. Page kept at {saved}", flush=True)
+        sys.exit(3)
     print(f"FORM SUBMITTED {a.answers}", flush=True)
 
 
