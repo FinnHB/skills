@@ -1,0 +1,13 @@
+# Changelog — interactive-html
+
+## 2026-07-21
+Initial version. Serves a page of questions on localhost and waits for one submission.
+- **Gated on `AskUserQuestion`'s ceiling, not on "large task".** The built-in tool already handles ≤4 questions with 2–4 options each. Triggering on task size would misfire both ways — large tasks that end in one binary question, small ones that fan out into twelve — so the branches are the three places the built-in runs out: >4 questions, free-text answers, questions belonging beside a document.
+- **Local server, exit-as-signal.** Rejected: a copy-to-clipboard button (bulletproof, but costs a paste and a context switch every round) and a JSON download (still needs a nudge, litters `~/Downloads`). The server writes `answers.json` and exits on submit; run under `run_in_background`, that exit re-invokes Claude with the answers ready, so nothing polls and no turn is held open.
+- **Spec-driven rather than bespoke HTML.** Claude writes a small `spec.json` and `form.py` renders it, so the page is the same every run instead of re-improvised — and it costs a few hundred tokens rather than a full page.
+- **Two layouts, chosen by the shape of the material.** *Panel* iframes a document beside the questions; *inline* interleaves `prose` blocks with questions in one column. Added after the first live run: one output with several questions about it suits a side panel, but questions attached to different parts of the material want to sit under the part they concern — and picking between the two belongs inside the skill rather than in the user's prompt.
+- **No timeout by default.** First cut expired at 45 minutes; changed on use — a form dying while the user is in a meeting costs more than a forgotten server on an ephemeral port. `--timeout-min N` restores a deadline.
+- **Markdown left unsupported in the `document` pane.** Considered and declined: converting it means either a dependency or a rough hand-rolled converter, and Claude can render to HTML first. Stdlib-only is worth more.
+- **Design system borrowed from `flowchart`.** Same "engineering paper" tokens and fonts, light and dark, so the two read as siblings.
+- Named `interactive-html` (over `answer-form`, `ask-form`, `questionnaire`) — the framing is questions embedded in the HTML Claude is already producing, not a standalone form.
+- Verified end to end (render, POST, answers written, clean exit), then in a real session — six live questions answered through the browser and picked up automatically. Visually checked at 1600w/1000w/900w across both layouts, no console errors. Fixed on review: with a document pane the whole page scrolled instead of the form pane, stranding the submit bar mid-page.
